@@ -5,8 +5,8 @@
       "default": true
     }
   ],
-  "name": "Education Cloud Payment Portal",
+  "name": "Education Cloud Org 2.0",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "61.0"
+  "sourceApiVersion": "59.0"
 }
