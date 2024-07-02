@@ -82,10 +82,25 @@
         return order.Id;
     }
 
-    private static String getContactId(String UserId){
-        return [Select ContactId from User where id =: UserId LIMIT 1].ContactId;
+    /**
+     * *********************************************************
+     * @Method Name    : getContactId
+     * @description    : This method retrieves the Contact Id associated with a given User Id.
+     * @param UserId   : String - The Id of the User whose Contact Id is to be retrieved.
+     * @return         : String - The Contact Id associated with the given User Id, or null if no contact is found.
+     * *********************************************************
+     */
+    private static String getContactId(String UserId) {
+        if (UserId == null) {
+            return null;
+        }
+        try {
+            User user = [SELECT ContactId FROM User WHERE Id = :UserId LIMIT 1];
+            return user != null ? user.ContactId : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
-
     /**
      * *********************************************************
      * @Method Name    : getOrderIdByPaymentIntent
@@ -161,7 +176,7 @@
      */
     public static void createCourseOfferingParticipant(Id orderId) {
         if (orderId == null) {
-            System.debug('Order Id is null. Exiting method.');
+            System.debug('Order Id is null');
             return;
         }
 

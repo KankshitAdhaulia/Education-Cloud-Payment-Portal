@@ -45,7 +45,6 @@ global class StripeWebhookController {
         try {
             jsonMap = (Map<String, Object>) JSON.deserializeUntyped(jsonString);
         } catch (Exception e) {
-            System.debug('Error deserializing JSON: ' + e.getMessage());
             return respondWithError(res, 'Invalid JSON payload');
         }
         String eventType = (String) jsonMap.get('type');
@@ -53,7 +52,6 @@ global class StripeWebhookController {
             return respondWithError(res, 'Missing event type');
         }
         Map<String, Object> session = (Map<String, Object>) ((Map<String, Object>) jsonMap.get('data')).get('object');
-
         try{    
             if (eventType == 'checkout.session.completed') {
                 Id orderId = StripeEventHandler.handleCheckoutSessionCompleted(session);
@@ -66,12 +64,9 @@ global class StripeWebhookController {
                 return respondWithError(res, 'Invalid event type');
             }
         }catch (Exception e) {
-            System.debug('Error processing event: ' + e.getMessage());
             return respondWithError(res, 'Error processing event: ' + e.getMessage());
-        }
-            
+        }        
     }
-
     /**
      * *********************************************************
      * @Method Name    : respondWithError
