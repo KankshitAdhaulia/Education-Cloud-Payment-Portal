@@ -7,14 +7,18 @@
  *                      tasks to the appropriate handlers based on the 
  *                      event type.
  * @developer         : Kankshit Adhaulia
+ * @deprecated        : This class is deprecated as of July 4, 2024. No need to handle Webhook.
  * Modification Log:
  * Ver   Date         Author               Modification
  * 1.0   13-06-2024   Kankshit Adhaulia    Initial Version
+ * 2.0   04-07-2025   Kankshit Adhaulia    Deprecating this class(No need to handle Webhook)
  * *********************************************************
  */
 
 @RestResource(urlMapping='/StripeWebhook')
 global class StripeWebhookController {
+
+    
 
     /**
      * *********************************************************
@@ -24,7 +28,7 @@ global class StripeWebhookController {
      * @return         : String - A JSON response indicating the status of the processing.
      * *********************************************************
      */
-    @HttpPost
+     @HttpPost
     global static String handleWebhook() {
         RestRequest req = RestContext.request;
         RestResponse res = RestContext.response;
@@ -97,3 +101,7 @@ global class StripeWebhookController {
         return '{"status": "success", "orderId": "' + orderId + '"}';
     }
 }
+
+
+
+
