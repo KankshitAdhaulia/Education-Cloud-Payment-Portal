@@ -158,22 +158,24 @@ public with sharing class StripeController {
      * @throws         : AuraHandledException - If the session retrieval fails or an error occurs.
      * *********************************************************
      */
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static Map<String, Object> getSessionDetails(String sessionId) {
         try {
-            HttpResponse res = sendHttpRequest(CHECKOUT_ENDPOINT + '/' + sessionId, 'GET', null, false);
+            HttpResponse res = sendHttpRequest(CHECKOUT_ENDPOINT + '/' + sessionId + '?expand[0]=invoice', 'GET', null, false);
 
             if (res.getStatusCode() == 200) {
                 Map<String, Object> sessionData = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-                String customerId = (String) sessionData.get('customer');
-
-                HttpResponse customerRes = sendHttpRequest(CUSTOMER_ENDPOINT + '/' + customerId, 'GET', null, false);
-                if (customerRes.getStatusCode() == 200) {
-                    Map<String, Object> customerData = (Map<String, Object>) JSON.deserializeUntyped(customerRes.getBody());
-                    sessionData.put('customer_name', (String) customerData.get('name'));
-                } else {
-                    throw new AuraHandledException('Failed to retrieve customer details: ' + customerRes.getBody());
+                Map<String, Object> customerDetails = (Map<String, Object>) sessionData.get('customer_details');
+                // Add customer name to session data if available
+                if (customerDetails != null) {
+                    sessionData.put('customer_name', (String) customerDetails.get('name'));
                 }
+
+              updateCourseOrder(sessionData);
+                
+                //String customerId = (String) sessionData.get('customer');
+
+                //HttpResponse customerRes = sendHttpRequest(CUSTOMER_ENDPOINT + '/' + customerId, 'GET', null, false);
 
                 return sessionData;
             } else {
@@ -183,6 +185,70 @@ public with sharing class StripeController {
             throw new AuraHandledException('Error: ' + e.getMessage());
         }
     }
+
+    /**
+     * *********************************************************
+     * @Method Name    : updateCourseOrder
+     * @description    : This method updates the course order with the session data.
+     * @param          : sessionData - The session data map.
+     * @throws         : AuraHandledException - If the order update fails or an error occurs.
+     * *********************************************************
+     */
+    private static void updateCourseOrder(Map<String, Object> sessionData) {
+        Map<String, Object> invoiceDetails = (Map<String, Object>) sessionData.get('invoice');
+        String userId = (String) sessionData.get('client_reference_id');
+        String contactId = getUserContactId(userId);
+
+        if (contactId == null) {
+            throw new AuraHandledException('No contact found for user ID: ' + userId);
+        }
+
+        try {
+            // Query the matching order
+            List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c =: contactId AND Status__c = 'Pending' LIMIT 1];
+            if (orders.isEmpty()) {
+                throw new AuraHandledException('No matching order found for contact ID: ' + contactId);
+            }
+
+            Order__c matchingOrder = orders[0];
+            matchingOrder.Session_Id__c = (String) sessionData.get('id');
+
+            if (invoiceDetails != null) {
+                matchingOrder.Hosted_Invoice_URL__c = (String) invoiceDetails.get('hosted_invoice_url');
+                matchingOrder.Payment_Intent__c = (String) sessionData.get('payment_intent');
+                matchingOrder.Status__c = ((String) invoiceDetails.get('status') == 'paid') ? 'Success' : 'Pending';
+                matchingOrder.Total_Amount__c = ((Decimal) invoiceDetails.get('amount_paid')) / 100.0;
+                //matchingOrder.Order_Date__c = System.today();
+                //matchingOrder.Currency__c = ((String) invoiceDetails.get('currency')).toUpperCase();
+            }
+
+            // Update the order
+            update matchingOrder;
+        } catch (Exception e) {
+            throw new AuraHandledException('Error updating order: ' + e.getMessage());
+        }
+    }
+
+    /**
+     * *********************************************************
+     * @Method Name    : getUserContactId
+     * @description    : This method retrieves the Contact Id associated with a given User Id.
+     * @param UserId   : String - The Id of the User whose Contact Id is to be retrieved.
+     * @return         : String - The Contact Id associated with the given User Id, or null if no contact is found.
+     * *********************************************************
+     */
+    private static String getUserContactId(String UserId) {
+        if (UserId == null) {
+            return null;
+        }
+        try {
+            User user = [SELECT ContactId FROM User WHERE Id = :UserId LIMIT 1];
+            return user != null ? user.ContactId : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
 
     /**
      * *********************************************************
