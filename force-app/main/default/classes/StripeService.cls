@@ -53,7 +53,7 @@ public with sharing class StripeService {
             List<CourseOfferingParticipant> courseOfferingParticipantList = buildCourseOfferingParticipantList(paymentIntent);
             if (!courseOfferingParticipantList.isEmpty()) {
                 insert courseOfferingParticipantList;
-            }
+                            }
         } catch (Exception e) {
             throw new AuraHandledException('Error creating course offering participants.');
         }
@@ -199,12 +199,19 @@ public with sharing class StripeService {
      */
     private static List<CourseOfferingParticipant> buildCourseOfferingParticipantList(String paymentIntent) {
         List<CourseOfferingParticipant> courseOfferingParticipantList = new List<CourseOfferingParticipant>();
-        for (Order_Line_Item__c lineItem : [SELECT Id, Course_Offering__c, Order__c, Order__r.Contact__c FROM Order_Line_Item__c WHERE Order__r.Payment_Intent__c = :paymentIntent]) {
+        for (Order_Line_Item__c lineItem : [SELECT Id, Course_Offering__c, Order__c, Order__r.Contact__c, Course_Offering__r.StartDate, Course_Offering__r.EndDate FROM Order_Line_Item__c WHERE Order__r.Payment_Intent__c = :paymentIntent]) {
+            if (lineItem.Course_Offering__c == null || lineItem.Order__r.Contact__c == null) {
+                System.debug('Invalid line item: ' + lineItem.Id + ' - Missing Course_Offering__c or Contact__c');
+                continue;
+            }
             CourseOfferingParticipant participant = new CourseOfferingParticipant();
-            participant.CourseOfferingId = lineItem.Course_Offering__c;
-            participant.ParticipantContactId = lineItem.Order__r.Contact__c;
-            participant.StartDate = lineItem.Course_Offering__r.StartDate.Date();
-            participant.EndDate = lineItem.Course_Offering__r.EndDate.Date();
+            participant.CourseOfferingId = lineItem.Course_Offering__c ?? null;
+            participant.ParticipantContactId = lineItem.Order__r.Contact__c ?? null;
+            //participant.ParticipationStatus = 'Enrolled';
+            //participant.ParticipantAffiliation = 'Student';
+            participant.StartDate = (lineItem.Course_Offering__r.StartDate != null) ? lineItem.Course_Offering__r.StartDate.date() : null;
+            participant.EndDate = (lineItem.Course_Offering__r.EndDate != null) ? lineItem.Course_Offering__r.EndDate.date() : null;
+            
             courseOfferingParticipantList.add(participant);
         }
         return courseOfferingParticipantList;
