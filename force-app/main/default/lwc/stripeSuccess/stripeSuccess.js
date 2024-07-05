@@ -32,12 +32,9 @@ export default class StripeSuccess extends LightningElement {
     async fetchSessionDetails() {
         try {
             const result = await getSessionDetails({ sessionId: this.sessionId });
-            console.log('==result==',result);
             this.customerName = result.customer_name;
-            console.log('==customerName==', this.customerName);
             this.total = result.amount_total/100;
             this.paymentIntent = result.payment_intent;
-            console.log('==paymentIntent==', this.paymentIntent);
             this.currency = result.currency.toUpperCase();
             this.isLoading = false;
             this.createCourseOfferingParticipant();
@@ -55,7 +52,6 @@ export default class StripeSuccess extends LightningElement {
         fetchInvoiceURL({ paymentIntent: this.paymentIntent })
             .then(result => {
                 this.invoiceURL = result;
-                console.log('==paymentIntent==', this.paymentIntent);
                 window.open(this.invoiceURL);
             })
             .catch(error => {
@@ -65,7 +61,6 @@ export default class StripeSuccess extends LightningElement {
 
     createCourseOfferingParticipant() {
         try {
-            console.log('==paymentIntnent==', this.paymentIntent);
             createCourseOfferingParticipant({ paymentIntent: this.paymentIntent });
             console.log('CourseOfferingParticipant records created successfully.');
         } catch (error) {
