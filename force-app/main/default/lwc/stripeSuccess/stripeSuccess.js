@@ -1,6 +1,7 @@
 import { LightningElement, track, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import getSessionDetails from '@salesforce/apex/StripeController.getSessionDetails';
+import createCourseOfferingParticipant from '@salesforce/apex/StripeController.createCourseOfferingParticipant';
 import fetchInvoiceURL from '@salesforce/apex/StripeController.fetchInvoiceURL';
 
 export default class StripeSuccess extends LightningElement {
@@ -21,23 +22,7 @@ export default class StripeSuccess extends LightningElement {
             this.sessionId = currentPageReference.state.session_id;
             console.log('sessionid', this.sessionId);
             this.fetchSessionDetails();
-
-            if (localStorage.getItem('cart')) {
-                localStorage.removeItem('cart');
-                console.log('Cart emptied successfully.');
             }
-
-            // Read the updatedCourses from localStorage
-            const updatedCourses = localStorage.getItem('updatedCourses');
-            if (updatedCourses) {
-                this.updatedCourses = JSON.parse(updatedCourses).map(course => Object.assign({}, course));
-                console.log('Retrieved updated courses:', JSON.stringify(this.updatedCourses));
-                //localStorage.removeItem('updatedCourses'); // Clean up the localStorage
-
-                // Call Apex method to create CourseOfferingParticipant records
-                this.createCourseOfferingParticipant();
-            }
-        }
         }
     
 
@@ -47,14 +32,18 @@ export default class StripeSuccess extends LightningElement {
     async fetchSessionDetails() {
         try {
             const result = await getSessionDetails({ sessionId: this.sessionId });
+            console.log('==result==',result);
             this.customerName = result.customer_name;
             console.log('==customerName==', this.customerName);
             this.total = result.amount_total/100;
             this.paymentIntent = result.payment_intent;
+            console.log('==paymentIntent==', this.paymentIntent);
             this.currency = result.currency.toUpperCase();
             this.isLoading = false;
+            this.createCourseOfferingParticipant();
         } catch (error) {
             console.error('Error fetching session details:', error);
+            console.error('Error message:', error.body ? error.body.message : error.message);
             this.isLoading = false;
         }
     }
@@ -66,6 +55,7 @@ export default class StripeSuccess extends LightningElement {
         fetchInvoiceURL({ paymentIntent: this.paymentIntent })
             .then(result => {
                 this.invoiceURL = result;
+                console.log('==paymentIntent==', this.paymentIntent);
                 window.open(this.invoiceURL);
             })
             .catch(error => {
@@ -75,7 +65,8 @@ export default class StripeSuccess extends LightningElement {
 
     createCourseOfferingParticipant() {
         try {
-            createCourseOfferingParticipant({ courseOrderLines: JSON.stringify(this.updatedCourses) });
+            console.log('==paymentIntnent==', this.paymentIntent);
+            createCourseOfferingParticipant({ paymentIntent: this.paymentIntent });
             console.log('CourseOfferingParticipant records created successfully.');
         } catch (error) {
             console.error('Error creating CourseOfferingParticipant records:', error);

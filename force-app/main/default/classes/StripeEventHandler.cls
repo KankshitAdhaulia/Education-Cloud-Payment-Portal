@@ -8,9 +8,11 @@
  *                      creating and updating orders based on 
  *                      the webhook data.
  * @developer         : Kankshit Adhaulia
+ * @deprecated        : This class is deprecated as of July 4, 2024. No need to handle Webhook.
  * Modification Log:
  * Ver   Date         Author               Modification
  * 1.0   24-06-2024   Kankshit Adhaulia    Initial Version
+ * 2.0   04-07-2025   Kankshit Adhaulia    Deprecating this class(No need to handle Webhook)
  * *********************************************************
  */
 
@@ -23,8 +25,8 @@
      * @return         : Id - The Id of the created Order.
      * *********************************************************
      */
-    public static Id handleCheckoutSessionCompleted(Map<String, Object> session) {
-        return upsertOrder(session, true);
+    public static Id handleCheckoutSessionCompleted(Map<String, Object> session, String eventType) {
+        return upsertOrder(session, eventType);
     }
 
     /**
@@ -35,8 +37,8 @@
      * @return         : Id - The Id of the updated Order.
      * *********************************************************
      */
-    public static Id handleInvoicePaid(Map<String, Object> session) {
-        return upsertOrder(session, false);
+    public static Id handleInvoicePaid(Map<String, Object> session, String eventType) {
+        return upsertOrder(session, eventType);
     }
 
     /**
@@ -49,37 +51,39 @@
      * @return         : Id - The Id of the created or updated Order.
      * *********************************************************
      */
-    private static Id upsertOrder(Map<String, Object> session, Boolean isCreate) {
+    private static Id upsertOrder(Map<String, Object> session, String eventType) {
         Id orderId = null;
-        if (!isCreate) {
+        if(eventType == 'checkout.session.completed'){
+            orderId = getRelatedCourseOrder(getContactId((String) session.get('client_reference_id')));
+        }
+        if (eventType == 'invoice.paid') {
             orderId = getOrderIdByPaymentIntent((String) session.get('payment_intent'));
         }
-        Order__c order = isCreate ? new Order__c() : new Order__c(Id = orderId);
+        Order__c order = new Order__c(Id = orderId);
         try {
-            if (isCreate) {
+            if (eventType == 'checkout.session.completed') {
                 order.Session_Id__c = (String) session.get('id');
                 order.Payment_Intent__c = (String) session.get('payment_intent');
                 order.Order_Date__c = System.today();
-                order.Contact__c = getContactId((String) session.get('client_reference_id'));
-                insert order;
+                //order.Contact__c = getContactId((String) session.get('client_reference_id'));
+                update order;
             } else {
                 order.Name = (String) session.get('number');
                 order.Total_Amount__c = ((Decimal) session.get('amount_paid'))/100.0;
                 order.Status__c = ((String) session.get('status') == 'paid') ? 'Success' : 'Pending';
-                order.Payment_Intent__c = (String) session.get('payment_intent');
+                //order.Payment_Intent__c = (String) session.get('payment_intent');
                 order.Hosted_Invoice_URL__c = (String) session.get('hosted_invoice_url');
                 order.Currency__c = ((String) session.get('currency')).toUpperCase();
                 update order;
-
-                List<Order_Line_Item__c> orderLineItems = createOrderLineItems(session, order.Id);
-                if (!orderLineItems.isEmpty()) {
-                    insert orderLineItems;
-                }
             }   
         } catch (Exception e) {
             System.debug('Error upserting Course Order: ' + e.getMessage());
         }
         return order.Id;
+    }
+
+    private static Id getRelatedCourseOrder(String contactId){
+        return [Select id from Order__c where Contact__c =: contactId and Status__c = 'Pending' LIMIT 1].id;
     }
 
     /**
@@ -118,57 +122,6 @@
 
     /**
      * *********************************************************
-     * @Method Name    : createOrderLineItems
-     * @description    : This method creates a list of Order Line Items based on the data
-     *                   received from the Stripe webhook session and associates them with an Order.
-     * @param session  : Map<String, Object> - The data from the Stripe webhook session.
-     * @param orderId  : Id - The Id of the Order to associate the Line Items with.
-     * @return         : List<Order_Line_Item__c> - The list of created Order Line Items.
-     * *********************************************************
-     */
-    private static List<Order_Line_Item__c> createOrderLineItems(Map<String, Object> session, Id orderId) {
-        Set<String> lineItemDescriptionSet = new Set<String>();
-        Map<String, Object> lines = (Map<String, Object>) session.get('lines');
-        List<Object> lineItems = (List<Object>) lines.get('data');
-
-        for (Object lineItemObj : lineItems) {
-            Map<String, Object> lineItem = (Map<String, Object>) lineItemObj;
-            lineItemDescriptionSet.add((String) lineItem.get('description'));
-        }
-
-        Map<String, Id> courseOfferingNameToIdMap = getCourseOfferingNameToIdMap(lineItemDescriptionSet);
-        List<Order_Line_Item__c> orderLineItems = new List<Order_Line_Item__c>();
-        for (Object lineItemObj : lineItems) {
-            Map<String, Object> lineItem = (Map<String, Object>) lineItemObj;
-            Order_Line_Item__c orderLineItem = new Order_Line_Item__c();
-            orderLineItem.Order__c = orderId;
-            orderLineItem.Price__c = ((Decimal) lineItem.get('amount'))/100.0;
-            orderLineItem.Currency__c = ((String) lineItem.get('currency')).toUpperCase();
-            orderLineItem.Course_Offering__c = courseOfferingNameToIdMap.get((String) lineItem.get('description'));
-            orderLineItems.add(orderLineItem);
-        }
-        return orderLineItems;
-    }
-
-    /**
-     * *********************************************************
-     * @Method Name    : getCourseOfferingNameToIdMap
-     * @description    : This method retrieves a map of Course Offering names to their IDs
-     *                   based on the provided set of line item descriptions.
-     * @param lineItemDescriptionSet : Set<String> - The set of line item descriptions.
-     * @return                       : Map<String, Id> - A map of Course Offering names to their IDs.
-     * *********************************************************
-     */
-    private static Map<String, Id> getCourseOfferingNameToIdMap(Set<String> lineItemDescriptionSet) {
-        Map<String, Id> courseOfferingNameToIdMap = new Map<String, Id>();
-        for (CourseOffering c : [SELECT Id, Name FROM CourseOffering WHERE Name IN :lineItemDescriptionSet]) {
-            courseOfferingNameToIdMap.put(c.Name, c.Id);
-        }
-        return courseOfferingNameToIdMap;
-    }
-
- /**
-     * *********************************************************
      * @Method Name    : createCourseOfferingParticipant
      * @description    : This method creates Course Offering Participants for a given Order.
      * @param orderId  : Id - The Id of the Order for which participants are to be created.
@@ -176,7 +129,6 @@
      */
     public static void createCourseOfferingParticipant(Id orderId) {
         if (orderId == null) {
-            System.debug('Order Id is null');
             return;
         }
 
