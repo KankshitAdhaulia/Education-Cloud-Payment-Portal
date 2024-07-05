@@ -208,7 +208,7 @@ public with sharing class StripeService {
             participant.CourseOfferingId = lineItem.Course_Offering__c ?? null;
             participant.ParticipantContactId = lineItem.Order__r.Contact__c ?? null;
             //participant.ParticipationStatus = 'Enrolled';
-            //participant.ParticipantAffiliation = 'Student';
+            participant.ParticipantAffiliation = 'Student';
             participant.StartDate = (lineItem.Course_Offering__r.StartDate != null) ? lineItem.Course_Offering__r.StartDate.date() : null;
             participant.EndDate = (lineItem.Course_Offering__r.EndDate != null) ? lineItem.Course_Offering__r.EndDate.date() : null;
             
