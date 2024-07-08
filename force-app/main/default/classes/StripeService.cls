@@ -10,12 +10,52 @@
  * *********************************************************
  */
 public with sharing class StripeService {
+    // API Endpoints
     private static final String CHECKOUT_ENDPOINT = 'Callout:Stripe_NC/v1/checkout/sessions';
+    
+    // Content Types
     private static final String CONTENT_TYPE = 'application/x-www-form-urlencoded';
+    
+    // URLs
     private static final String CANCEL_URL = 'https://concretio5.my.site.com/s/success-page/s/payment-cancel';
     private static final String SUCCESS_URL = 'https://concretio5.my.site.com/educationPaymentPortal/s/success-page?session_id={CHECKOUT_SESSION_ID}';
+    
+    // Currency
     private static final String SINGAPORE_CURRENCY = 'SGD';
+    
+    // Quantities
     private static final Integer QUANTITY = 1;
+    
+    // HTTP Methods
+    public static final String HTTP_POST = 'POST';
+    public static final String HTTP_GET = 'GET';
+    
+    // Query Parameters
+    public static final String EXPAND_INVOICE = '?expand[0]=invoice';
+    
+    // Participant Affiliations
+    public static final String PARTICIPANT_AFFILIATION_STUDENT = 'Student';
+    
+    // Payment Methods
+    public static final List<String> PAYMENT_METHOD_TYPES = new List<String>{'card', 'paynow', 'grabpay'};
+
+    // Payment Mode
+    public static final String PAYMENT_MODE = 'payment';
+    
+    // Order Status
+    public static final String ORDER_STATUS_PENDING = 'Pending';
+    public static final String ORDER_STATUS_SUCCESS = 'Success';
+
+    // Error Messages
+    public static final String ERROR_CREATING_CHECKOUT_SESSION = 'Error occurred while creating the Stripe Checkout session.';
+    public static final String ERROR_CREATING_PARTICIPANTS = 'Error creating course offering participants.';
+    public static final String ERROR_RETRIEVING_SESSION_DETAILS = 'Error occurred while retrieving session details.';
+    public static final String ERROR_FETCHING_INVOICE_URL = 'Error occurred while fetching invoice URL.';
+    public static final String FAILED_TO_CREATE_SESSION = 'Failed to create Stripe Checkout session.';
+    public static final String FAILED_TO_RETRIEVE_SESSION_DETAILS = 'Failed to retrieve session details.';
+    public static final String NO_CONTACT_FOUND = 'No contact found for user ID.';
+    public static final String ERROR_UPDATING_ORDER = 'Error updating order.';
+    public static final String ERROR_NO_MATCHING_ORDER = 'No matching order found for contact ID.';
 
     /**
      * *********************************************************
@@ -32,10 +72,10 @@ public with sharing class StripeService {
         try {
             String contactId = getUserContactId(userId);
             String body = buildRequestBody(courseOrderLines, contactId);
-            HttpResponse res = sendHttpRequest(CHECKOUT_ENDPOINT, 'POST', body, true);
+            HttpResponse res = sendHttpRequest(CHECKOUT_ENDPOINT, HTTP_POST, body, true);
             return handleCreateCheckoutSessionResponse(res);
         } catch (Exception e) {
-            throw new AuraHandledException('Error occurred while creating the Stripe Checkout session.');
+            throw new AuraHandledException(ERROR_CREATING_CHECKOUT_SESSION);
         }
     }
 
@@ -53,9 +93,9 @@ public with sharing class StripeService {
             List<CourseOfferingParticipant> courseOfferingParticipantList = buildCourseOfferingParticipantList(paymentIntent);
             if (!courseOfferingParticipantList.isEmpty()) {
                 insert courseOfferingParticipantList;
-                            }
+                }
         } catch (Exception e) {
-            throw new AuraHandledException('Error creating course offering participants.');
+            throw new AuraHandledException(ERROR_CREATING_PARTICIPANTS);
         }
     }
 
@@ -71,10 +111,10 @@ public with sharing class StripeService {
      */
     public static Map<String, Object> getSessionDetails(String sessionId) {
         try {
-            HttpResponse res = sendHttpRequest(CHECKOUT_ENDPOINT + '/' + sessionId + '?expand[0]=invoice', 'GET', null, false);
+            HttpResponse res = sendHttpRequest(CHECKOUT_ENDPOINT + '/' + sessionId + EXPAND_INVOICE, HTTP_GET, null, false);
             return handleGetSessionDetailsResponse(res);
         } catch (Exception e) {
-            throw new AuraHandledException('Error occurred while retrieving session details.');
+            throw new AuraHandledException(ERROR_RETRIEVING_SESSION_DETAILS);
         }
     }
 
@@ -92,7 +132,7 @@ public with sharing class StripeService {
         try {
             return [SELECT Hosted_Invoice_URL__c FROM Order__c WHERE Payment_Intent__c = :paymentIntent LIMIT 1].Hosted_Invoice_URL__c;
         } catch (Exception e) {
-            throw new AuraHandledException('Error occurred while fetching invoice URL.');
+            throw new AuraHandledException(ERROR_FETCHING_INVOICE_URL);
         }
     }
 
@@ -111,7 +151,7 @@ public with sharing class StripeService {
             Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
             return (String) responseMap.get('url');
         } else {
-            throw new AuraHandledException('Failed to create Stripe Checkout session.');
+            throw new AuraHandledException(FAILED_TO_CREATE_SESSION);
         }
     }
 
@@ -129,7 +169,7 @@ public with sharing class StripeService {
         List<Object> parsedJson = (List<Object>) JSON.deserializeUntyped(courseOrderLines);
         Map<String, String> params = initializeParams();
         addLineItemsToParams(parsedJson, params);
-        params.put('mode', 'payment');
+        params.put('mode', PAYMENT_MODE);
         params.put('success_url', SUCCESS_URL);
         addPaymentMethodsToParams(params);
         return convertMapToUrlEncodedString(params);
@@ -182,7 +222,7 @@ public with sharing class StripeService {
      * *********************************************************
      */
     private static void addPaymentMethodsToParams(Map<String, String> params) {
-        List<String> paymentMethodTypes = new List<String>{'card', 'paynow', 'grabpay'};
+        List<String> paymentMethodTypes = PAYMENT_METHOD_TYPES;
         for (Integer i = 0; i < paymentMethodTypes.size(); i++) {
             params.put('payment_method_types[' + i + ']', paymentMethodTypes[i]);
         }
@@ -204,9 +244,9 @@ public with sharing class StripeService {
                 continue;
             }
             CourseOfferingParticipant participant = new CourseOfferingParticipant();
-            participant.CourseOfferingId = lineItem.Course_Offering__c ?? null;
-            participant.ParticipantContactId = lineItem.Order__r.Contact__c ?? null;
-            participant.ParticipantAffiliation = 'Student';
+            participant.CourseOfferingId = lineItem.Course_Offering__c;
+            participant.ParticipantContactId = lineItem.Order__r.Contact__c;
+            participant.ParticipantAffiliation = PARTICIPANT_AFFILIATION_STUDENT;
             participant.StartDate = (lineItem.Course_Offering__r.StartDate != null) ? lineItem.Course_Offering__r.StartDate.date() : null;
             participant.EndDate = (lineItem.Course_Offering__r.EndDate != null) ? lineItem.Course_Offering__r.EndDate.date() : null;
             
@@ -235,7 +275,7 @@ public with sharing class StripeService {
             updateCourseOrder(sessionData);
             return sessionData;
         } else {
-            throw new AuraHandledException('Failed to retrieve session details.');
+            throw new AuraHandledException(FAILED_TO_RETRIEVE_SESSION_DETAILS);
         }
     }
 
@@ -253,14 +293,14 @@ public with sharing class StripeService {
         String contactId = getUserContactId(userId);
 
         if (contactId == null) {
-            throw new AuraHandledException('No contact found for user ID.');
+            throw new AuraHandledException(NO_CONTACT_FOUND);
         }
 
         try {
             Order__c matchingOrder = findMatchingOrder(contactId);
             updateMatchingOrder(matchingOrder, sessionData, invoiceDetails);
         } catch (Exception e) {
-            throw new AuraHandledException('Error updating order.');
+            throw new AuraHandledException(ERROR_UPDATING_ORDER);
         }
     }
 
@@ -274,9 +314,9 @@ public with sharing class StripeService {
      * *********************************************************
      */
     private static Order__c findMatchingOrder(String contactId) {
-        List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c = :contactId AND Status__c = 'Pending' LIMIT 1];
+        List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c = :contactId AND Status__c = :ORDER_STATUS_PENDING LIMIT 1];
         if (orders.isEmpty()) {
-            throw new AuraHandledException('No matching order found for contact ID.');
+            throw new AuraHandledException(ERROR_NO_MATCHING_ORDER);
         }
         return orders[0];
     }
@@ -296,7 +336,7 @@ public with sharing class StripeService {
         if (invoiceDetails != null) {
             matchingOrder.Hosted_Invoice_URL__c = (String) invoiceDetails.get('hosted_invoice_url');
             matchingOrder.Payment_Intent__c = (String) sessionData.get('payment_intent');
-            matchingOrder.Status__c = ((String) invoiceDetails.get('status') == 'paid') ? 'Success' : 'Pending';
+            matchingOrder.Status__c = ((String) invoiceDetails.get('status') == 'paid') ? ORDER_STATUS_SUCCESS : ORDER_STATUS_PENDING;
             matchingOrder.Total_Amount__c = ((Decimal) invoiceDetails.get('amount_paid')) / 100.0;
             matchingOrder.Name = (String) invoiceDetails.get('number');
             matchingOrder.Order_Date__c = System.today();
