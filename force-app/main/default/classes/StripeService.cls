@@ -130,7 +130,7 @@ public with sharing class StripeService {
      */
     public static String fetchInvoiceURL(String paymentIntent) {
         try {
-            return [SELECT Hosted_Invoice_URL__c FROM Order__c WHERE Payment_Intent__c = :paymentIntent LIMIT 1].Hosted_Invoice_URL__c;
+            return [SELECT Hosted_Invoice_URL__c FROM Order__c WHERE Payment_Intent__c = :paymentIntent WITH USER_MODE LIMIT 1].Hosted_Invoice_URL__c;
         } catch (Exception e) {
             throw new AuraHandledException(ERROR_FETCHING_INVOICE_URL);
         }
@@ -239,7 +239,7 @@ public with sharing class StripeService {
      */
     private static List<CourseOfferingParticipant> buildCourseOfferingParticipantList(String paymentIntent) {
         List<CourseOfferingParticipant> courseOfferingParticipantList = new List<CourseOfferingParticipant>();
-        for (Order_Line_Item__c lineItem : [SELECT Id, Course_Offering__c, Order__c, Order__r.Contact__c, Course_Offering__r.StartDate, Course_Offering__r.EndDate FROM Order_Line_Item__c WHERE Order__r.Payment_Intent__c = :paymentIntent]) {
+        for (Order_Line_Item__c lineItem : [SELECT Id, Course_Offering__c, Order__c, Order__r.Contact__c, Course_Offering__r.StartDate, Course_Offering__r.EndDate FROM Order_Line_Item__c WHERE Order__r.Payment_Intent__c = :paymentIntent WITH USER_MODE]) {
             if (lineItem.Course_Offering__c == null || lineItem.Order__r.Contact__c == null) {
                 continue;
             }
@@ -314,7 +314,7 @@ public with sharing class StripeService {
      * *********************************************************
      */
     private static Order__c findMatchingOrder(String contactId) {
-        List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c = :contactId AND Status__c = :ORDER_STATUS_PENDING LIMIT 1];
+        List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c = :contactId AND Status__c = :ORDER_STATUS_PENDING WITH USER_MODE LIMIT 1];
         if (orders.isEmpty()) {
             throw new AuraHandledException(ERROR_NO_MATCHING_ORDER);
         }
