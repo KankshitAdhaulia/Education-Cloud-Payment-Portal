@@ -153,13 +153,13 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>ControlledByParent</externalSharingModel>
-    <label>Order Line Item</label>
+    <label>Course Order Line Item</label>
     <nameField>
         <displayFormat>Item-{0000}</displayFormat>
         <label>Order Line Item Name</label>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Order Line Items</pluralLabel>
+    <pluralLabel>Course Order Line Items</pluralLabel>
     <searchLayouts></searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>

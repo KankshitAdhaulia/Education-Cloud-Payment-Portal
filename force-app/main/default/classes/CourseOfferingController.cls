@@ -1,140 +1,92 @@
 /**
- * @description       : 
- * @author            : anisha@concret.io
- * @group             : 
- * @last modified on  : 07-04-2024
- * @last modified by  : anisha@concret.io
-**/
-
-/**
  * @description       : Apex controller for handling course order and order line items
- * @author            : anisha@concret.io
- * @group             :
- * @last modified on  : 07-04-2024
+ * @group             : 
+ * @last modified on  : 07-09-2024
  * @last modified by  : anisha@concret.io
 **/
+
 public with sharing class CourseOfferingController {
-
-
 
 
     // Fetches pending CourseOrders for the current user
     @AuraEnabled
     public static List<Order__c> getPendingOrders() {
         Id currentUserId = UserInfo.getUserId();
-        List<Order__c> pendingOrders = [
-            SELECT Id, Status__c, OwnerId  
+        List<Order__c> pendingOrders = fetchPendingOrders(currentUserId); /* Directly return here  return [
+            SELECT Id, Status__c, OwnerId
             FROM Order__c
-            WHERE Status__c = 'Pending' AND OwnerId = :currentUserId
-        ];
-       
-        System.debug('getPendingOrders - Found ' + pendingOrders.size() + ' pending orders for user ' + currentUserId);
+            WHERE Status__c = 'Pending' AND OwnerId = :currentUserId // LIMIT 1
+        ];*/
+        System.debug('getPendingOrders - Found ' + pendingOrders.size() + ' pending orders for user ' + currentUserId); // Directly UserInfo.getUserId() in place of currentUserId
         return pendingOrders;
     }
 
-
-
+    // Private method to fetch pending orders for the current user
+    private static List<Order__c> fetchPendingOrders(Id currentUserId) {
+        return [
+            SELECT Id, Status__c, OwnerId
+            FROM Order__c
+            WHERE Status__c = 'Pending' AND OwnerId = :currentUserId // LIMIT 1
+        ];
+    }
 
     @AuraEnabled
     public static void addCoursesToOrders(List<Object> courseOfferingList) {
-    Id currentUserId = UserInfo.getUserId();
+        Id currentUserId = UserInfo.getUserId();
 
-    // System.debug('courseOfferingList>>>'+courseOfferingList[0]);
-    // System.debug('courseOfferingList>>>'+courseOfferingList[0].price);
-
-
-    String jsonString = JSON.serialize(courseOfferingList[0]);
+        String jsonString = JSON.serialize(courseOfferingList[0]);
         Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(jsonString);
-
-        // Assuming 'price' is a Decimal field in the JSON object
         if (jsonMap.containsKey('price')) {
             Decimal price = (Decimal) jsonMap.get('price');
             System.debug('Price of first course offering: ' + price);
         }
 
-    // Fetch existing pending orders for the current user
-    List<Order__c> pendingOrders = [
-        SELECT Id
-        FROM Order__c
-        WHERE Status__c = 'Pending' AND OwnerId = :currentUserId
-        LIMIT 1
-    ];
+        // Fetch existing pending orders for the current user
+        List<Order__c> pendingOrders = fetchPendingOrders(currentUserId);
 
+        Order__c orderToUpdate;
+        if (!pendingOrders.isEmpty()) {
+            orderToUpdate = pendingOrders[0];
+            System.debug('addCoursesToOrders - Using existing order with ID: ' + orderToUpdate.Id);
+        } else {
+            List<User> conId = [SELECT ContactId FROM User WHERE Id = :currentUserId LIMIT 1];
+            orderToUpdate = new Order__c(Contact__c = conId[0].ContactId, Status__c = 'Pending');
+            System.debug('addCoursesToOrders - Creating new order for ConId ' + conId[0].ContactId);
+            System.debug('addCoursesToOrders - Creating new order for user ' + currentUserId);
+            try {
+                insert orderToUpdate;
+                System.debug('addCoursesToOrders - Created new order with ID: ' + orderToUpdate.Id);
+            } catch (Exception e) {
+                System.debug('Error creating order: ' + e.getMessage());
+                throw new AuraHandledException('Error creating order: ' + e.getMessage());
+            }
+        }
 
-
-
-    Order__c orderToUpdate;
-    if (!pendingOrders.isEmpty()) {
-        orderToUpdate = pendingOrders[0];
-        System.debug('addCoursesToOrders - Using existing order with ID: ' + orderToUpdate.Id);
-    } else {
-        List<User> conId = [SELECT ContactId FROM User WHERE Id=:currentUserId LIMIT 1];
-        orderToUpdate = new Order__c(Contact__c = conId[0].ContactId, Status__c = 'Pending');
-        System.debug('addCoursesToOrders - Creating new order for ConId ' + conId[0].ContactId);
-        System.debug('addCoursesToOrders - Creating new order for user ' + currentUserId);
-        insert orderToUpdate;
-        System.debug('addCoursesToOrders - Created new order with ID: ' + orderToUpdate.Id);
-    }
-
-
-    // // Fetch CourseOfferings with Price__c field
-    // List<CourseOffering> courseOfferings = [
-    //     SELECT Id, Price__c
-    //     FROM CourseOffering
-    //     WHERE Id IN :courseOfferingIds
-    // ];
-
-
-    // // Prepare order line items to add
-    //     List<Order_Line_Item__c> itemsToAdd = new List<Order_Line_Item__c>();
-    //     for (CourseOffering offering : courseOfferings) {
-    //         itemsToAdd.add(new Order_Line_Item__c(
-    //             Course_Offering__c = offering.Id,
-    //             Order__c = orderToUpdate.Id,
-    //             Price__c = offering.Price__c
-    //         ));
-    //     }
-
-    // Prepare order line items to add
-    List<Order_Line_Item__c> itemsToAdd = new List<Order_Line_Item__c>();
+        // Prepare order line items to add
+        List<Order_Line_Item__c> itemsToAdd = new List<Order_Line_Item__c>();
 
         itemsToAdd.add(new Order_Line_Item__c(
             Course_Offering__c = (Id)jsonMap.get('id'),
             Order__c = orderToUpdate.Id,
             Price__c = (Decimal)jsonMap.get('price')
         ));
-       
-    
 
-
-
-
-    // // Bulk insert order line items
-    try {
-        if (!itemsToAdd.isEmpty()) {
-            List<Database.SaveResult> results = Database.insert(itemsToAdd, false);
-            for (Database.SaveResult result : results) {
+        // Bulk insert order line items
+        try {
+            if (!itemsToAdd.isEmpty()) {
+                Database.SaveResult result = Database.insert(itemsToAdd[0], false);
                 if (!result.isSuccess()) {
-                    for (Database.Error error : result.getErrors()) {
-                        System.debug('Error adding order line item: ' + error.getMessage());
-                    }
-                    throw new AuraHandledException('Error adding course offerings to order ');
+                    Database.Error error = result.getErrors()[0];
+                    System.debug('Error adding order line item: ' + error.getMessage());
+                    throw new AuraHandledException('Error adding order line item: ' + error.getMessage());
                 }
             }
+            System.debug('addCoursesToOrders - items added: ' + itemsToAdd.size());
+        } catch (Exception e) {
+            System.debug('Error adding course offerings to order: ' + e.getMessage());
+            throw new AuraHandledException('Error adding course offerings to order: ' + e.getMessage());
         }
-        System.debug('addCoursesToOrders - items added: ' + itemsToAdd.size());
-    } catch (Exception e) {
-        System.debug('Error adding course offerings to order: ' + e.getMessage());
-        throw new AuraHandledException('Error adding course offerings to order: ' + e.getMessage());
     }
-}
-
-
-
-
-
-
-
 
     @AuraEnabled
     public static List<Order_Line_Item__c> getOrderLineItems(String orderId) {
@@ -145,16 +97,9 @@ public with sharing class CourseOfferingController {
             WHERE Order__c = :orderId
         ];
 
-
-
-
         System.debug('getOrderLineItems - Found ' + orderLineItems.size() + ' order line items for order ID ' + orderId);
         return orderLineItems;
     }
-
-
-
-
     @AuraEnabled
 public static void deleteCourseOrderAndItems(List<Id> courseIds) {
     // Query and delete order line items related to the course IDs
@@ -166,25 +111,15 @@ public static void deleteCourseOrderAndItems(List<Id> courseIds) {
     ];
 
 
-
-
     // Separate the items to delete and items to keep in the cart
     List<Order_Line_Item__c> itemsToKeep = new List<Order_Line_Item__c>();
     Set<Id> orderIdsToUpdate = new Set<Id>();
-
-
-
-
     for (Order_Line_Item__c item : itemsToDelete) {
         if (!courseIds.contains(item.Course_Offering__c)) {
             itemsToKeep.add(item);
             orderIdsToUpdate.add(item.Order__c);
         }
     }
-
-
-
-
     // Update orders that still have items after deletion
     List<Order__c> ordersToUpdate = [
         SELECT Id
@@ -192,18 +127,10 @@ public static void deleteCourseOrderAndItems(List<Id> courseIds) {
         WHERE Id IN :orderIdsToUpdate
         AND Status__c = 'Pending'
     ];
-
-
-
-
     try {
         // Delete items marked for deletion
         delete itemsToDelete;
         System.debug('deleteCourseOrderAndItems - Deleted ' + itemsToDelete.size() + ' order line items for course IDs ' + courseIds);
-
-
-
-
         // Update orders if needed
         if (!ordersToUpdate.isEmpty()) {
             update ordersToUpdate;
@@ -216,47 +143,43 @@ public static void deleteCourseOrderAndItems(List<Id> courseIds) {
 }
 
 
-
-
-
-
-
-
     // Validates and adjusts prices of CourseOfferings based on provided IDs
     @AuraEnabled
     public static List<CourseOffering> validateAndAdjustPrices(List<Id> courseIds) {
+        System.debug('courseIds>>>'+courseIds);
         List<CourseOffering> courseList = [
             SELECT Id, Name, StartDate, Price__c, LearningCourse.Name
             FROM CourseOffering
             WHERE Id IN :courseIds
         ];
-       
-        // Perform price adjustments as needed
-
-
-
 
         System.debug('validateAndAdjustPrices - Adjusted prices for ' + courseList.size() + ' course offerings.');
         return courseList;
     }
 
-
-
-
     // Fetches course details including course offerings
+
     @AuraEnabled
-    public static List<LearningCourse> getCourseDetails(List<Id> recordIds) {
-        List<LearningCourse> courses = [
-            SELECT Id, Name,
-                (SELECT Id, Name, StartDate, Price__c FROM CourseOfferings WHERE Id IN :recordIds)
-            FROM LearningCourse
-            WHERE Id IN (SELECT LearningCourseId FROM CourseOffering WHERE Id IN :recordIds)
-        ];
+    public static CourseOffering getCourseDetails(Id recordIds) {
+        try {
+            CourseOffering courseOffering = [
+             SELECT Id, Name, StartDate, Price__c, LearningCourse.Name
+                FROM CourseOffering
+                WHERE Id = :recordIds
+            
+            ];
 
+            if (courseOffering == null) {
+                throw new AuraHandledException('No course offering found for the given ID');
+            }
 
-
-
-        System.debug('getCourseDetails - courses: ' + courses);
-        return courses;
+            System.debug('getCourseDetails - courseOffering: ' + courseOffering);
+            return courseOffering;
+        } catch (Exception e) {
+            System.debug('Error in getCourseDetails: ' + e.getMessage());
+            throw new AuraHandledException('Error loading course: ' + e.getMessage());
+        }
     }
+
+
 }
