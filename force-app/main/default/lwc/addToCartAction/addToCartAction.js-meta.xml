@@ -5,4 +5,9 @@
         <target>lightning__RecordAction</target>
         <target>lightningCommunity__Page</target>
     </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordAction">
+            <actionType>Action</actionType>
+        </targetConfig>
+    </targetConfigs>
 </LightningComponentBundle>

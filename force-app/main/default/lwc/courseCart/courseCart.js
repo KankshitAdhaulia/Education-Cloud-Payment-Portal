@@ -1,164 +1,161 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, track, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import { subscribe, createMessageContext } from 'lightning/messageService';
+import getPendingOrders from '@salesforce/apex/CourseOfferingController.getPendingOrders';
+import getOrderLineItems from '@salesforce/apex/CourseOfferingController.getOrderLineItems';
 import createCheckoutSession from '@salesforce/apex/StripeController.createCheckoutSession';
-
 import validateAndAdjustPrices from '@salesforce/apex/CourseOfferingController.validateAndAdjustPrices';
-
-import Cart from "@salesforce/messageChannel/Cart_Channel__c";
+import deleteCourseOrderAndItems from '@salesforce/apex/CourseOfferingController.deleteCourseOrderAndItems';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class CourseCart extends NavigationMixin(LightningElement) {
     @track cart = [];
-    context = createMessageContext();
-    subscription = null;
     @track showConfirmationModal = false;
     @track showPriceMismatchModal = false;
-    courseToDelete = null;
+    courseLineItemToDelete = null;
     @track priceMismatchCourses = [];
 
     connectedCallback() {
         this.loadCart();
-        this.subscribeMC();
     }
 
-    async loadCart() {
-        // Load the cart from localStorage
-
-        let tempCart = JSON.parse(localStorage.getItem('cart'));
-        let updatedCourses = await this.checkForPriceMismatch();
-        let updatedCoursesMap = new Map(updatedCourses.map(course => [course.Id, course]));
-        let mismatchFlag = false;
-        
-        tempCart.forEach(course => {
-            let updatedCourse = updatedCoursesMap.get(course.id);
-
-            if (updatedCourse) {
-
-                if (course.name !== updatedCourse.Name ||
-                    course.startingDate != new Date(updatedCourse.StartDate).toISOString() ||
-                    course.price != updatedCourse.Price__c ||
-                    course.learningCourse != updatedCourse.LearningCourse.Name
-                    ) 
-                {
-                    mismatchFlag = true;
+    loadCart() {
+        getPendingOrders()
+            .then(pendingOrders => {
+                if (pendingOrders && pendingOrders.length > 0) {
+                    const orderIdVal = pendingOrders[0].Id;
+                    getOrderLineItems({ orderId : orderIdVal })
+                        .then(items => {
+                            
+                            this.cart = items.map(item => {
+                            
+                                return {
+                                    id: item.Id,
+                                    courseid: item.Course_Offering__c,
+                                    name: item.Course_Offering__r.Name,
+                                    learningCourse: item.Course_Offering__r.LearningCourse.Name,
+                                    startingDate: item.Course_Offering__r.StartDate,
+                                    price: item.Course_Offering__r.Price__c
+                                };
+                            });
+                            this.checkForPriceMismatch();
+                        });
                 }
-
-                course.name = updatedCourse.Name;
-                course.learningCourse = updatedCourse.LearningCourse.Name;
-                course.startingDate = new Date(updatedCourse.StartDate).toISOString(); 
-                course.price = updatedCourse.Price__c;
-            }
-        });
-
-        this.showPriceMismatchModal = mismatchFlag;
-
-        await localStorage.setItem('cart', JSON.stringify(tempCart));
-
-        this.cart = await JSON.parse(localStorage.getItem('cart')) || [];
-
-        return mismatchFlag;
+            })
+            .catch(error => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error loading cart',
+                        message: error.body.message,
+                        variant: 'error',
+                    })
+                );
+            });
     }
 
-    subscribeMC() {
-        if (this.subscription) {
-            return;
+     async checkForPriceMismatch() {
+        try {
+            let ids = this.cart.map(item => item.courseid);
+            let updatedPrices = await validateAndAdjustPrices({ courseIds: ids });
+            let mismatches = false;
+            this.cart = this.cart.map(course => {
+                let updatedCourse = updatedPrices.find(p => p.Id === course.courseid);
+
+                if (updatedCourse) {
+                    if (course.price !== updatedCourse.Price__c) {
+                        mismatches = true;
+                        course.price = updatedCourse.Price__c;
+                    }
+                }
+                return course;
+            });
+
+
+            
+
+            this.showPriceMismatchModal = mismatches;
+        } catch (error) {
+            console.error('Error validating and adjusting prices:', error);
         }
-        this.subscription = subscribe(this.context, Cart, (message) => {
-            // Update the cart with the new item
-            this.cart = [...this.cart, message.messageToSend];
-            // Save the updated cart to localStorage
-            localStorage.setItem('cart', JSON.stringify(this.cart));
-        });
     }
-
-    async checkForPriceMismatch() {
-
-        let courseIdsToSend = JSON.parse(localStorage.getItem('cart')).map(course => course.id);
-        let updatedPrices = await validateAndAdjustPrices({courseIds: courseIdsToSend});
-        console.log('HEY>',JSON.stringify(updatedPrices));
-        return updatedPrices;
-
-    }
-
+  
     get hasItems() {
         return this.cart.length > 0;
     }
-
+  
     get totalCourses() {
         return this.cart.length;
     }
 
-    get totalAmount(){
+    get totalAmount() {
         return this.cart.reduce((sum, course) => sum + course.price, 0);
     }
 
     handleDeleteCourse(event) {
-        this.courseToDelete = event.currentTarget.dataset.courseId;
+        this.courseLineItemToDelete = event.currentTarget.dataset.courseId;
         this.showConfirmationModal = true;
     }
 
     handleCloseModal() {
         this.showConfirmationModal = false;
-        this.showPriceMismatchModal = false;
+        
         this.courseToDelete = null;
     }
 
     confirmDeleteCourse() {
-        const courseId = this.courseToDelete;
-        
-        // Find index of course with matching id
-        const index = this.cart.findIndex(course => course.id === courseId);
-        
-        if (index !== -1) {
-            // Remove course from cart array
-            this.cart.splice(index, 1);
-            
-            // Update localStorage
-            localStorage.setItem('cart', JSON.stringify(this.cart));
-            
-            // Update component state
-            this.cart = [...this.cart];
-        }
-        
-        this.handleCloseModal();
+        const courseLineItemId = this.courseLineItemToDelete;
+        deleteCourseOrderAndItems({ courseIds: courseLineItemId })
+            .then(() => {
+                const index = this.cart.findIndex(course => course.id == courseLineItemId);
+                    if (index !== -1) {
+                        this.cart.splice(index, 1);
+                    }
+
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Course removed',
+                        message: 'Course removed from cart successfully',
+                        variant: 'info',
+                    })
+                );
+            })
+            .catch(error => {
+                console.error('Error deleting course order and items:', error);
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Failed to delete course order and items. Please try again later.',
+                        variant: 'error',
+                    })
+                );
+            })
+            .finally(() => {
+                this.handleCloseModal();
+            });
     }
 
     handleConfirmPriceMismatch() {
         this.cart = this.cart.map(course => {
-            const mismatchCourse = this.priceMismatchCourses.find(mismatch => mismatch.id === course.id);
+            const mismatchCourse = this.priceMismatchCourses.find(mismatch => mismatch.Id === course.id);
             return mismatchCourse ? { ...course, price: mismatchCourse.newPrice } : course;
         });
-        
-        localStorage.setItem('cart', JSON.stringify(this.cart));
+
         this.showPriceMismatchModal = false;
     }
 
     async handleCheckout() {
-        let mismatchFound = await this.loadCart();
-        console.log('mismatchFound',JSON.stringify(!mismatchFound));
+        try {
+            await this.checkForPriceMismatch();
 
-        if(!mismatchFound){
-            try {
-                let updatedCourses = this.cart.map(course => {
-                    return {
-                        ...course,
-                        price: (course.price * 100).toString()
-                    };
-                });
-
-                localStorage.setItem('updatedCourses', JSON.stringify(updatedCourses));
-
-                // Create a checkout session and get the URL
+            if (!this.showPriceMismatchModal) {
+                let updatedCourses = this.cart.map(course => ({
+                    ...course,
+                    price: (course.price * 100).toString(),
+                }));
                 const url = await createCheckoutSession({ courseOrderLines: JSON.stringify(updatedCourses) });
-                console.log('Checkout URL:', url); // Log the URL to verify it
-                // Redirect to the checkout URL
                 window.open(url, '_self');
-                
-            } catch (error) {
-                // Log any errors that occur during the checkout process
-                console.error('Error creating checkout session:', error);
             }
+        } catch (error) {
+            console.error('Error handling checkout:', error);
         }
-        
     }
 }

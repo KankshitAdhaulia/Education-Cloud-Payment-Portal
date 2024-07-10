@@ -2,7 +2,7 @@
   @description       : 
   @author            : anisha@concret.io
   @group             : 
-  @last modified on  : 06-26-2024
+  @last modified on  : 07-09-2024
   @last modified by  : anisha@concret.io
 -->
 <template>
@@ -25,9 +25,9 @@
                                     <div class="slds-grid slds-wrap slds-grid_vertical-align-center">
                                         <div class="slds-col slds-size_10-of-12">
                                             <p class="slds-text-heading_small">{course.name}</p>
-                                            <p class="slds-text-body_medium">Course : {course.learningCourse}</p>
-                                            <p class="slds-text-body_medium">Start Date : <lightning-formatted-date-time value={course.startingDate} year="numeric" month="numeric" day="numeric" hour="2-digit" minute="2-digit" ></lightning-formatted-date-time></p>
-                                            <p class="slds-text-body_medium">Price : ${course.price}</p>
+                                            <p class="slds-size_medium">Course : {course.learningCourse}</p>
+                                            <p class="slds-size_medium">Start Date : <lightning-formatted-date-time value={course.startingDate} year="numeric" month="numeric" day="numeric" hour="2-digit" minute="2-digit" ></lightning-formatted-date-time></p>
+                                            <p class="slds-size_medium">Price : SGD{course.price}</p>
                                         </div>
                                         <div class="slds-col slds-size_2-of-12 slds-text-align_right">
                                             <lightning-icon icon-name="utility:delete" size="x-small" onclick={handleDeleteCourse} data-course-id={course.id} class="slds-icon-text-error"></lightning-icon>
@@ -39,7 +39,7 @@
                     </template>
                 </ul>
                 <div class="slds-text-align_right slds-m-top_medium slds-p-around_medium">
-                    <h2 class="slds-text-heading_small slds-m-bottom_medium"><b>Total: {totalAmount}</b></h2>
+                    <h2 class="slds-text-heading_small slds-m-bottom_medium"><b>Total: SGD {totalAmount}</b></h2>
                     <lightning-button label="Checkout" onclick={handleCheckout} variant="brand" class="slds-m-left_small"></lightning-button>
                 </div>
             </template>
@@ -86,8 +86,6 @@
                     <p>Some course specifications in your cart have updated. Proceed by updating them?</p>
                 </div>
                 <footer class="slds-modal__footer">
-                    <!-- <lightning-button variant="neutral" label="Cancel" class="slds-p-around_x-small" onclick={handleCloseModal}></lightning-button> -->
-                    <!-- <lightning-button variant="brand" label="Update Prices" class="slds-p-around_x-small" onclick={handleConfirmPriceMismatch}></lightning-button> -->
                     <lightning-button variant="brand" label="Confirm" class="slds-p-around_x-small" onclick={handleConfirmPriceMismatch}></lightning-button>
                 </footer>
             </div>

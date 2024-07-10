@@ -5,7 +5,7 @@
       "default": true
     }
   ],
-  "name": "Education Cloud Org 2.0",
+  "name": "EducationCloud-Main",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
   "sourceApiVersion": "59.0"
