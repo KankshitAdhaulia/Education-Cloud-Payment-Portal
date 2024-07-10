@@ -7,7 +7,6 @@
  * *********************************************************
  */
 public with sharing class CourseOfferingController {
-    
     /**
      * *********************************************************
      * @Method Name    : getPendingOrders
@@ -28,7 +27,6 @@ public with sharing class CourseOfferingController {
             WHERE Status__c = 'Pending' AND OwnerId = :userId
         ];
     }
-
     /**
      * *********************************************************
      * @Method Name    : addCoursesToOrders
@@ -201,7 +199,6 @@ public with sharing class CourseOfferingController {
             throw new AuraHandledException('Error loading course: ' + e.getMessage());
         }
     }
-
     private static CourseOffering fetchCourseDetails(Id recordId) {
         CourseOffering courseOffering = [
             SELECT Id, Name, StartDate, Price__c, LearningCourse.Name

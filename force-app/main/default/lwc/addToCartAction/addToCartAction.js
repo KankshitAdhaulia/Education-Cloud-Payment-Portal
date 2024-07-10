@@ -6,7 +6,6 @@ import { CloseActionScreenEvent } from 'lightning/actions';
 
 export default class AddToCartAction extends LightningElement {
     @api recordId;
-
     connectedCallback() {
         this.fetchCourseDetails();
     }
@@ -22,7 +21,6 @@ export default class AddToCartAction extends LightningElement {
                         startingDate: courseOffering.StartDate,
                         price: courseOffering.Price__c
                     };
-
                     this.addCourseToOrder([course]);
 
                     this.dispatchEvent(new CloseActionScreenEvent());

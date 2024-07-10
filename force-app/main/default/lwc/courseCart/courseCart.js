@@ -14,9 +14,6 @@ export default class CourseCart extends NavigationMixin(LightningElement) {
     courseLineItemToDelete = null;
     @track priceMismatchCourses = [];
 
-
-
-
     connectedCallback() {
         this.loadCart();
     }
@@ -55,9 +52,6 @@ export default class CourseCart extends NavigationMixin(LightningElement) {
             });
     }
 
-
-
-
      async checkForPriceMismatch() {
         try {
             let ids = this.cart.map(item => item.courseid);
@@ -83,47 +77,29 @@ export default class CourseCart extends NavigationMixin(LightningElement) {
             console.error('Error validating and adjusting prices:', error);
         }
     }
-
-
-
-
+  
     get hasItems() {
         return this.cart.length > 0;
     }
-
-
-
-
+  
     get totalCourses() {
         return this.cart.length;
     }
 
-
-
-
     get totalAmount() {
         return this.cart.reduce((sum, course) => sum + course.price, 0);
     }
-
-
-
 
     handleDeleteCourse(event) {
         this.courseLineItemToDelete = event.currentTarget.dataset.courseId;
         this.showConfirmationModal = true;
     }
 
-
-
-
     handleCloseModal() {
         this.showConfirmationModal = false;
         
         this.courseToDelete = null;
     }
-
-
-
 
     confirmDeleteCourse() {
         const courseLineItemId = this.courseLineItemToDelete;
@@ -157,9 +133,6 @@ export default class CourseCart extends NavigationMixin(LightningElement) {
             });
     }
 
-
-
-
     handleConfirmPriceMismatch() {
         this.cart = this.cart.map(course => {
             const mismatchCourse = this.priceMismatchCourses.find(mismatch => mismatch.Id === course.id);
@@ -168,9 +141,6 @@ export default class CourseCart extends NavigationMixin(LightningElement) {
 
         this.showPriceMismatchModal = false;
     }
-
-
-
 
     async handleCheckout() {
         try {
