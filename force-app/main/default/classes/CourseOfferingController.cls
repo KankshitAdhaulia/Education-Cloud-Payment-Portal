@@ -89,10 +89,6 @@ public with sharing class CourseOfferingController {
             WHERE Id = :userId 
             LIMIT 1
         ].ContactId;
-        // if (!userList.isEmpty()) {
-        //     return [SELECT Id FROM Contact WHERE Id = :userList[0].ContactId LIMIT 1];
-        // }
-        //throw new AuraHandledException('User contact not found');
     }
 
     private static Order_Line_Item__c createOrderLineItem(Map<String, Object> courseOfferingMap, Id orderId, Decimal price) {
