@@ -314,7 +314,7 @@ public with sharing class StripeService {
      * *********************************************************
      */
     private static Order__c findMatchingOrder(String contactId) {
-        List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c = :contactId AND Status__c = :ORDER_STATUS_PENDING WITH USER_MODE LIMIT 1];
+        List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c = :contactId AND Status__c = :ORDER_STATUS_PENDING LIMIT 1];
         if (orders.isEmpty()) {
             throw new AuraHandledException(ERROR_NO_MATCHING_ORDER);
         }
