@@ -1,0 +1,27 @@
+.container {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.icon {
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    color: #4CAF50;
+}
+
+p {
+    color: #555;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.home-button {
+    margin: 0 10px; 
+}

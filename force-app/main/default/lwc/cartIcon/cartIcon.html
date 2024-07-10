@@ -1,0 +1,5 @@
+<template>
+    <lightning-button-icon icon-name="utility:cart" onclick={handleCartClick} alternative-text="Cart">
+        <lightning-badge if:true={cartCount}>{cartCount}</lightning-badge>
+    </lightning-button-icon>
+</template>
