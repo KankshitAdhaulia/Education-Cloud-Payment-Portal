@@ -1,0 +1,22 @@
+<template>
+    <div if:true={isLoading}>
+        <!-- You can show a spinner or a loading message while data is being fetched -->
+        <lightning-spinner alternative-text="Loading"></lightning-spinner>
+    </div>
+    <template if:false={isLoading}>
+        <div class="container">
+            <div class="icon">
+                <lightning-icon icon-name="utility:success" size="large"></lightning-icon>
+            </div>
+            <!-- Thank you message with customer name -->
+            <h1>Thank You {customerName}!</h1>
+            <!-- Payment success message with currency and total amount -->
+            <p>Payment for {currency} {total} done successfully.</p>
+            <br>
+            <!-- Buttons for browsing more courses and viewing the invoice -->
+            <div class="button-container">
+                <lightning-button label="View Invoice" onclick={handleViewInvoice} variant="brand" class="home-button"></lightning-button>
+            </div>
+        </div>
+    </template>
+</template>

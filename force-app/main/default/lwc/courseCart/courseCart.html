@@ -1,0 +1,95 @@
+<!--
+  @description       : 
+  @author            : anisha@concret.io
+  @group             : 
+  @last modified on  : 07-09-2024
+  @last modified by  : anisha@concret.io
+-->
+<template>
+    <div class="slds-m-around_medium">
+        <div class="slds-box slds-theme_default">
+            <div class="slds-text-heading_medium slds-m-bottom_medium slds-p-around_medium">
+                <lightning-button-icon icon-name="utility:cart" size="medium" variant="brand" class="slds-m-right_x-small"></lightning-button-icon>
+                <span class="slds-m-right_small">
+                    Course Cart
+                </span>
+                <lightning-button variant="neutral" class="slds-float_right slds-button_small" label={totalCourses}></lightning-button>
+            </div>
+            
+            <template if:true={hasItems}>
+                <ul class="slds-m-around_medium">
+                    <template for:each={cart} for:item="course">
+                        <li key={course.id} class="slds-item">
+                            <article class="slds-tile slds-tile_board slds-m-around_small">
+                                <div class="slds-tile__detail slds-p-around_small">
+                                    <div class="slds-grid slds-wrap slds-grid_vertical-align-center">
+                                        <div class="slds-col slds-size_10-of-12">
+                                            <p class="slds-text-heading_small">{course.name}</p>
+                                            <p class="slds-size_medium">Course : {course.learningCourse}</p>
+                                            <p class="slds-size_medium">Start Date : <lightning-formatted-date-time value={course.startingDate} year="numeric" month="numeric" day="numeric" hour="2-digit" minute="2-digit" ></lightning-formatted-date-time></p>
+                                            <p class="slds-size_medium">Price : SGD{course.price}</p>
+                                        </div>
+                                        <div class="slds-col slds-size_2-of-12 slds-text-align_right">
+                                            <lightning-icon icon-name="utility:delete" size="x-small" onclick={handleDeleteCourse} data-course-id={course.id} class="slds-icon-text-error"></lightning-icon>
+                                        </div>
+                                    </div>  
+                                </div>
+                            </article>
+                        </li>
+                    </template>
+                </ul>
+                <div class="slds-text-align_right slds-m-top_medium slds-p-around_medium">
+                    <h2 class="slds-text-heading_small slds-m-bottom_medium"><b>Total: SGD {totalAmount}</b></h2>
+                    <lightning-button label="Checkout" onclick={handleCheckout} variant="brand" class="slds-m-left_small"></lightning-button>
+                </div>
+            </template>
+            
+            <template if:false={hasItems}>
+                <p class="slds-text-body_regular slds-m-around_medium">Your cart is empty</p>
+            </template>
+        </div>
+    </div>
+
+    <template if:true={showConfirmationModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Confirm Deletion</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p>Do you really want to delete this course?</p>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Cancel" class="slds-p-around_x-small" onclick={handleCloseModal}></lightning-button>
+                    <lightning-button variant="destructive" label="Delete" class="slds-p-around_x-small" onclick={confirmDeleteCourse}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={showPriceMismatchModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Course Values Update Warning</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p>Some course specifications in your cart have updated. Proceed by updating them?</p>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="brand" label="Confirm" class="slds-p-around_x-small" onclick={handleConfirmPriceMismatch}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>
