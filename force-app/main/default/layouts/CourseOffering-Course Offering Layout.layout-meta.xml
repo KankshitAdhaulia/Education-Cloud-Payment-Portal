@@ -191,6 +191,13 @@
             <sortOrder>11</sortOrder>
         </platformActionListItems>
     </platformActionList>
+    <relatedLists>
+        <fields>Name</fields>
+        <fields>ParticipantContact</fields>
+        <fields>ParticipantAffiliation</fields>
+        <fields>ParticipationStatus</fields>
+        <relatedList>CourseOfferingParticipants</relatedList>
+    </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
