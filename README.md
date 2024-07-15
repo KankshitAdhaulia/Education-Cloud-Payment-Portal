@@ -1,18 +1,64 @@
-# Salesforce DX Project: Next Steps
+# Project Name: Education Cloud Payment Portal
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+## Description
+This package aims to provide a comprehensive solution for managing course offerings and payments on Salesforce Education Cloud Experience sites. The integration with Stripe ensures secure payment processing, while the custom objects facilitate efficient order and transaction management.
 
-## How Do You Plan to Deploy Your Changes?
+## Deployment
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+### Pre-Steps
+1. **Create a new Education Cloud trial org.**
+2. **Enable required settings:**
+    - Go to **Digital Experience** -> **Settings**.
+    - Enable **ExperienceBundle Metadata API in Digital Experiences**.
+    - Allow using standard external profiles for self-registration user creation and check-in.
 
-## Configure Your Salesforce DX Project
+### Clone the Repository and Authorize the Org
+1. **Clone the repository:**
+    ```sh
+    git clone https://github.com/yourusername/your-repository.git
+    ```
+2. **Navigate to the project directory:**
+    ```sh
+    cd your-repository
+    ```
+3. **Update site metadata:**
+    - In the repository, go to `sites -> Education_Payment_Portal.site-meta.xml`.
+    - Change the `<siteAdmin>` and `<siteGuestRecordDefaultOwner>` to any Admin User of your new org.
+    - Set Default External Access of Learning Access to Public Read.
+4. **Authorize your org:**
+    ```sh
+    sfdx auth:web:login -a YourOrgAlias
+    ```
+5. **Push source to the org:**
+    ```sh
+    sfdx force:source:push -u YourOrgAlias
+    ```
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+### Post-Steps
+1. **Update Success and Cancel URLs in StripeService.apex.**
+2. **In the External Credential named 'Stripe_EC', create a new Authentication Parameter in Principals with the following values:**
+    - Name: `Authorization`
+    - Value: your Stripe Key
 
-## Read All About It
+    Steps to get the Stripe key:
+    1. Log in to your Stripe Account.
+    2. Go to Developers.
+    3. Click on API keys.
+    4. Click on Reveal Test Key and copy it.
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+3. **Create a Contact and a new associated Account record and enable Customer User:**
+    - Provide Email, Username, profile as Customer Community Plus, and click Save.
+    - Assign permission sets to the Experience User:
+        - **Applicant Permission Set for Experience User**
+        - **Education Cloud for Experience Cloud Access - Clone**
+4. **Assign the Education Cloud Site Admin Permission Set to an Admin User.**
+5. **Go to Digital Experiences -> All Sites -> Click on Builder for the site 'Education Payment Portal'. Update the Navigation Bar to include Learning Courses and publish the site.**
+6. Go to the contact record you created and click on 'Login To Experience as User'.
+7. Go to Learning Courses.
+8. Go to Related and select a Course Offering.
+9. Add the Course Offering to Cart.
+10. Click on Checkout.
+
+## Author
+- **Author:** Kankshit Adhaulia
+- **Email:** ad.kankshit@concret.io

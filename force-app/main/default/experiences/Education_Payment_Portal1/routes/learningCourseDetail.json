@@ -1,0 +1,11 @@
+{
+  "activeViewId" : "4c418a72-161a-488f-8f36-5ca3d0c6f43e",
+  "appPageId" : "a4ff6eee-9d77-4bd3-afd0-95f2f5c54231",
+  "configurationTags" : [ ],
+  "devName" : "Learning_Course_Detail__c",
+  "id" : "807f7418-6fb8-4a83-bd24-44673a7dd1f0",
+  "label" : "Learning Course Detail",
+  "routeType" : "detail-0vY",
+  "type" : "route",
+  "urlPrefix" : "learningcourse"
+}

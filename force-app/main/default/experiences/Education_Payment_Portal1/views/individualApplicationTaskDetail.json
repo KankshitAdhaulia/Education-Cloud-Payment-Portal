@@ -1,0 +1,48 @@
+{
+  "appPageId" : "a4ff6eee-9d77-4bd3-afd0-95f2f5c54231",
+  "componentName" : "siteforce:sldsOneColLayout",
+  "dataProviders" : [ ],
+  "id" : "9ecd3e11-2f39-46d3-864f-7da30cc67ca3",
+  "label" : "Individual Application Task Detail",
+  "regions" : [ {
+    "id" : "1459a475-1989-4105-965f-1432024a3bf7",
+    "regionName" : "header",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "renderMethodType" : "FlexCard"
+      },
+      "componentName" : "eduadmissions:omniViewer",
+      "id" : "aefb27be-1c72-49d4-85cf-f97530827e98",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "7da5d1b6-fb40-4b0d-abd2-ba28165023cf",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "id" : "d9d38977-c454-4c41-bcf0-7e22757314a1",
+    "regionName" : "footer",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "{!Record._Object}: {!Record._Title}"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "5186fa6c-7b9c-426d-858b-e912329e946a",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "3d43fdac-3230-4533-a601-68fbe06484c4",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "detail-13a"
+}
