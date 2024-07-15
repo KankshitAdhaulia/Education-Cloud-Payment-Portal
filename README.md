@@ -7,6 +7,7 @@ This package aims to provide a comprehensive solution for managing course offeri
 
 ### Pre-Steps
 1. **Create a new Education Cloud trial org.**
+https://developer.salesforce.com/free-trials/comparison/education-cloud
 2. **Enable required settings:**
     - Go to **Digital Experience** -> **Settings**.
     - Enable **ExperienceBundle Metadata API in Digital Experiences**.
@@ -15,7 +16,7 @@ This package aims to provide a comprehensive solution for managing course offeri
 ### Clone the Repository and Authorize the Org
 1. **Clone the repository:**
     ```sh
-    git clone https://github.com/yourusername/your-repository.git
+    git clone https://github.com/KankshitAdhaulia/Education-Cloud-Payment-Portal.git
     ```
 2. **Navigate to the project directory:**
     ```sh
@@ -31,7 +32,7 @@ This package aims to provide a comprehensive solution for managing course offeri
     ```
 5. **Push source to the org:**
     ```sh
-    sfdx force:source:push -u YourOrgAlias
+    sf project deploy start
     ```
 
 ### Post-Steps
