@@ -10,18 +10,24 @@
  * *********************************************************
  */
 public with sharing class StripeService {
+
+    //Stripe Payment Configuration
+    private static final Stripe_Configurations__mdt stripeDetails = Stripe_Configurations__mdt.getInstance('Stripe_Payment_Details');
+
     // API Endpoints
-    private static final String CHECKOUT_ENDPOINT = 'Callout:Stripe_NC/v1/checkout/sessions';
+    private static final String CHECKOUT_ENDPOINT = stripeDetails.Checkout_Endpoint__c;
     
     // Content Types
-    private static final String CONTENT_TYPE = 'application/x-www-form-urlencoded';
+    private static final String CONTENT_TYPE = stripeDetails.Content_Type__c;
     
-    // URLs
-    private static final String CANCEL_URL = 'https://concretio5.my.site.com/s/success-page/s/payment-cancel';
-    private static final String SUCCESS_URL = 'https://concretio5.my.site.com/educationPaymentPortal/s/success-page?session_id={CHECKOUT_SESSION_ID}';
+    
+    private static final String orgUrl = URL.getOrgDomainURL().toExternalForm().replace('salesforce', 'site');
+    
+    private static final String CANCEL_URL = orgUrl + stripeDetails.Cancel_URL__c;
+    private static final String SUCCESS_URL = orgUrl + stripeDetails.Succes_URL__c;
     
     // Currency
-    private static final String SINGAPORE_CURRENCY = 'SGD';
+    private static final String SINGAPORE_CURRENCY = stripeDetails.Singapore_Currency__c;
     
     // Quantities
     private static final Integer QUANTITY = 1;
@@ -70,8 +76,10 @@ public with sharing class StripeService {
      */
     public static String createCheckoutSession(String courseOrderLines, String userId) {
         try {
+            system.debug('URL : ' + orgUrl);
             String contactId = getUserContactId(userId);
             String body = buildRequestBody(courseOrderLines, contactId);
+            System.debug('==CHECKOUT_ENDPOINT=='+CHECKOUT_ENDPOINT);
             HttpResponse res = sendHttpRequest(CHECKOUT_ENDPOINT, HTTP_POST, body, true);
             return handleCreateCheckoutSessionResponse(res);
         } catch (Exception e) {
@@ -388,6 +396,7 @@ public with sharing class StripeService {
             req.setBody(body);
         }
         Http http = new Http();
+        System.debug('==request=='+req);
         return http.send(req);
     }
 
