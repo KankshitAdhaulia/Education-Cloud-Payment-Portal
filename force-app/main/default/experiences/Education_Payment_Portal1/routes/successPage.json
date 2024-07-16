@@ -1,0 +1,12 @@
+{
+  "activeViewId" : "15436010-0bb3-4f75-a194-45dcc18b658f",
+  "appPageId" : "a4ff6eee-9d77-4bd3-afd0-95f2f5c54231",
+  "configurationTags" : [ ],
+  "devName" : "Success_Page__c",
+  "id" : "ef20a717-4105-4f99-9f79-b579d9a53764",
+  "label" : "Success Page",
+  "pageAccess" : "UseParent",
+  "routeType" : "custom-success-page",
+  "type" : "route",
+  "urlPrefix" : "success-page"
+}

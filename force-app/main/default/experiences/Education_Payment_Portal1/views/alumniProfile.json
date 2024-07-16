@@ -1,0 +1,31 @@
+{
+  "appPageId" : "a4ff6eee-9d77-4bd3-afd0-95f2f5c54231",
+  "componentName" : "siteforce:sldsOneColLayout",
+  "dataProviders" : [ ],
+  "id" : "c142c0a0-d3ad-4d3f-ab2d-ed88d4ab9932",
+  "label" : "Alumni Profile",
+  "regions" : [ {
+    "id" : "8ea6f0f3-4dc0-4aa4-80b4-0fbd100c6b69",
+    "regionName" : "header",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : { },
+      "componentName" : "edualumni:alumniProfileContainer",
+      "id" : "45da12db-9c19-4d32-be05-f10a78434579",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "bc4148cc-eeeb-46ba-9bbf-267462f221b8",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "id" : "d47d8363-7227-4e24-b41d-7ed0e3364dc9",
+    "regionName" : "footer",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "alumni-profile"
+}

@@ -1,0 +1,67 @@
+{
+  "appPageId" : "a4ff6eee-9d77-4bd3-afd0-95f2f5c54231",
+  "componentName" : "siteforce:sldsTwoCol84SidebarFeaturedLayout",
+  "dataProviders" : [ ],
+  "id" : "90029613-0da0-45a0-9cb6-300a2c7f013f",
+  "label" : "Appointment List",
+  "regions" : [ {
+    "id" : "8276984f-8148-4b20-991a-b617afdf1b6c",
+    "regionName" : "header",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "richTextValue" : "<h1>       <span style=\"color: #2D2D2D;font-size: 18px;\">My Appointments</span>"
+      },
+      "componentName" : "forceCommunity:richTextInline",
+      "id" : "b29aad7a-b1fc-44b8-95ee-b907b85dbb4c",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    }, {
+      "componentAttributes" : {
+        "flexcardName" : "EDUSchedulerScheduleAppointmentSite",
+        "objectApiName" : "{!objectApiName}",
+        "recordId" : "{!recordId}"
+      },
+      "componentName" : "runtime_omnistudio:flexcard",
+      "id" : "f0619de8-8c80-4c2d-bd0b-fa02c8f238a9",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    }, {
+      "componentAttributes" : { },
+      "componentName" : "healthcloud:myAppointmentsCommunity",
+      "id" : "26b5223b-92d1-4baf-9dc5-7f0197b77fbc",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "f837aa42-9780-4fdc-b88e-b02b5b424cca",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "flexcardName" : "EDUApplicationPortalNeedHelpSection",
+        "objectApiName" : "{!objectApiName}",
+        "recordId" : "{!recordId}"
+      },
+      "componentName" : "runtime_omnistudio:flexcard",
+      "id" : "f1e175fc-9336-4eb5-93d7-9a65e5b043a4",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "15c816f1-3026-4b13-8690-efb69488293f",
+    "regionName" : "sidebar",
+    "type" : "region"
+  }, {
+    "id" : "c299dcaa-7895-4ca3-9154-bdf6048bad0d",
+    "regionName" : "footer",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "list-08p"
+}

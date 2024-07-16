@@ -1,0 +1,78 @@
+{
+  "appPageId" : "a4ff6eee-9d77-4bd3-afd0-95f2f5c54231",
+  "componentName" : "siteforce:sldsTwoCol84Layout",
+  "dataProviders" : [ ],
+  "id" : "7d2b0f56-5a38-42f0-b0df-118f845b8016",
+  "label" : "Course Offering Detail",
+  "regions" : [ {
+    "id" : "e495acb2-0415-4f2a-bb44-3da31d0de822",
+    "regionName" : "header",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "recordId" : "{!recordId}"
+      },
+      "componentName" : "forceCommunity:recordHeadline",
+      "id" : "1c2dbc4a-c22b-46f8-b17c-864c6796d920",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    }, {
+      "componentAttributes" : {
+        "detailsTabLabel" : "Details",
+        "discussionsTabLabel" : "Feed",
+        "recordId" : "{!recordId}",
+        "relatedTabLabel" : "Related",
+        "showLegacyActivityComposer" : false,
+        "tab1Type" : "details",
+        "tab2Type" : "related",
+        "tab3Type" : "none",
+        "tab4Type" : "none",
+        "timelineTabLabel" : "Activity"
+      },
+      "componentName" : "forceCommunity:recordHomeTabs",
+      "id" : "4e447142-c1d3-4c30-8237-65626fb30e30",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "86f7ae06-8778-47be-b78a-be292d8fa33e",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "id" : "83178d56-5d7e-46d7-977b-3c1b3a067b54",
+    "regionName" : "footer",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "{!Record._Object}: {!Record._Title}"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "6322a0ed-6e77-4238-8ba8-e4bfda08eb8c",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "427c3b4e-1c2f-4118-8fee-63c4ef6ec5f9",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : { },
+      "componentName" : "c:courseCart",
+      "id" : "ed71861a-6131-4db3-a291-f9af052c9313",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "011c6683-2f22-4d46-a706-6c5a4d380dcc",
+    "regionName" : "sidebar",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "detail-0P0"
+}

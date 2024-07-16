@@ -1,0 +1,11 @@
+{
+  "activeViewId" : "ee07b86c-a916-46b9-9f2a-b6292d44d1c5",
+  "appPageId" : "a4ff6eee-9d77-4bd3-afd0-95f2f5c54231",
+  "configurationTags" : [ ],
+  "devName" : "Course_Offering_List__c",
+  "id" : "a3275277-19ee-479a-af01-95f10367b035",
+  "label" : "Course Offering List",
+  "routeType" : "list-0P0",
+  "type" : "route",
+  "urlPrefix" : "courseoffering"
+}
