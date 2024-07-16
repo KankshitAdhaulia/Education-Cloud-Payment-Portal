@@ -13,11 +13,6 @@
         <externalCredentialPrincipal>Stripe_EC-Stripe Token</externalCredentialPrincipal>
     </externalCredentialPrincipalAccesses>
     <fieldPermissions>
-        <editable>true</editable>
-        <field>CourseOffering.Price__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>false</editable>
         <field>Order_Line_Item__c.Course_Offering__c</field>
         <readable>true</readable>

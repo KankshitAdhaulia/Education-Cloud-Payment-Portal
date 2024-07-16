@@ -10,11 +10,6 @@
     </classAccesses>
     <fieldPermissions>
         <editable>false</editable>
-        <field>CourseOffering.Price__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Order_Line_Item__c.Course_Offering__c</field>
         <readable>true</readable>
     </fieldPermissions>
