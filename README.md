@@ -13,6 +13,7 @@ This package aims to provide a comprehensive solution for managing course offeri
     - Go to **Digital Experience** -> **Settings**.
     - Enable **ExperienceBundle Metadata API in Digital Experiences**.
     - Allow using standard external profiles for self-registration user creation and check-in.
+    - Go to Setup -> In Quick Find search 'Sharing Settings' -> Set Default External Access of Learning Access to Public Read.
 
 ### Clone the Repository and Authorize the Org
 1. **Clone the repository:**
@@ -28,7 +29,7 @@ This package aims to provide a comprehensive solution for managing course offeri
 3. **Update site metadata:**
     - In the repository, go to `sites -> Education_Payment_Portal.site-meta.xml`.
     - Change the `<siteAdmin>` and `<siteGuestRecordDefaultOwner>` to any Admin User of your new org.
-    - Set Default External Access of Learning Access to Public Read.
+   
 
 4. **Authorize your org:**
     ```sh
