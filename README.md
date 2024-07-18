@@ -54,7 +54,7 @@ This package aims to provide a comprehensive solution for managing course offeri
 2. **Create a Contact and a new associated Account record and enable Customer User:**
     - Provide Email, Username, profile as Customer Community Plus, and click Save.
     - Assign permission sets to the Experience User:
-        - **Applicant Permission Set for Experience User**
+        - **Stripe Payment Access**
         - **Education Cloud for Experience Cloud Access - Clone**
 
 3. **Assign the Education Cloud Site Admin Permission Set to an Admin User.**
