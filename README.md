@@ -1,3 +1,5 @@
+Here's the updated README file for the project:
+
 # Project Name: Education Cloud Payment Portal
 
 ## Description
@@ -71,6 +73,12 @@ This package aims to provide a comprehensive solution for managing course offeri
 8. **Add the Course Offering to Cart (Make sure the Course Offering has Price populated).**
 
 9. **Click on Checkout.**
+
+10. **Enter Checkout details.**
+    - For test, you can use the card number `4242 4242 4242 4242`.
+
+11. **Verify Transaction records:**
+    - Check the records created for objects Course Order and Course Order Line Item. Also, verify that related Course Offering Participant records are created.
 
 ## Author
 - **Author:** Kankshit Adhaulia
