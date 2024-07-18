@@ -76,10 +76,8 @@ public with sharing class StripeService {
      */
     public static String createCheckoutSession(String courseOrderLines, String userId) {
         try {
-            system.debug('URL : ' + orgUrl);
             String contactId = getUserContactId(userId);
             String body = buildRequestBody(courseOrderLines, contactId);
-            System.debug('==CHECKOUT_ENDPOINT=='+CHECKOUT_ENDPOINT);
             HttpResponse res = sendHttpRequest(CHECKOUT_ENDPOINT, HTTP_POST, body, true);
             return handleCreateCheckoutSessionResponse(res);
         } catch (Exception e) {
@@ -396,7 +394,6 @@ public with sharing class StripeService {
             req.setBody(body);
         }
         Http http = new Http();
-        System.debug('==request=='+req);
         return http.send(req);
     }
 
