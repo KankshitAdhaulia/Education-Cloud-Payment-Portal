@@ -23,8 +23,8 @@
     <redirectToCustomDomain>false</redirectToCustomDomain>
     <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
     <selfRegPage>CommunitiesSelfReg</selfRegPage>
-    <siteAdmin>surana.akshat-bbjh@force.com</siteAdmin>
-    <siteGuestRecordDefaultOwner>surana.akshat-bbjh@force.com</siteGuestRecordDefaultOwner>
+    <siteAdmin></siteAdmin>
+    <siteGuestRecordDefaultOwner></siteGuestRecordDefaultOwner>
     <siteType>ChatterNetwork</siteType>
     <urlPathPrefix>educationPaymentPortal</urlPathPrefix>
 </CustomSite>
