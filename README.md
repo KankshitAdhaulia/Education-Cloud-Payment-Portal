@@ -68,7 +68,7 @@ This package aims to provide a comprehensive solution for managing course offeri
 
 7. **Go to Related and select a Course Offering.**
 
-8. **Add the Course Offering to Cart.**
+8. **Add the Course Offering to Cart (Make sure the Course Offering has Price populated).**
 
 9. **Click on Checkout.**
 
