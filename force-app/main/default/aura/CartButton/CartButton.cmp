@@ -1,4 +1,5 @@
-<aura:component implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" >
+<aura:component implements="force:hasRecordId,force:lightningQuickActionWithoutHeader">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
     <aura:attribute name="recordId" type="String" />
-    <c:addToCartAction recordId="{!v.recordId}" oncloseauracomponent="{!c.closeAuraComponent}"></c:addToCartAction>
+    <c:addToCartAction recordId="{!v.recordId}" oncloseauracomponent="{!c.closeAuraComponent}" class="slds-hide"></c:addToCartAction>
 </aura:component>

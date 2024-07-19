@@ -20,6 +20,14 @@ public with sharing class CourseOfferingController {
         return fetchPendingOrders(currentUserId);
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : fetchPendingOrders
+     * @description    : Helper method to fetch pending CourseOrders for a specific user.
+     * @param          userId - ID of the user to fetch pending orders for.
+     * @return         : List<Order__c> - List of pending orders for the given user.
+     * *********************************************************
+     */
     private static List<Order__c> fetchPendingOrders(Id userId) {
         return [
             SELECT Id, Status__c, OwnerId
@@ -27,6 +35,7 @@ public with sharing class CourseOfferingController {
             WHERE Status__c = 'Pending' AND OwnerId = :userId
         ];
     }
+
     /**
      * *********************************************************
      * @Method Name    : addCoursesToOrders
@@ -54,11 +63,28 @@ public with sharing class CourseOfferingController {
         }
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : deserializeCourseOffering
+     * @description    : Helper method to deserialize a course offering from an Object to a Map.
+     * @param          courseOffering - The course offering object to deserialize.
+     * @return         : Map<String, Object> - Deserialized course offering map.
+     * *********************************************************
+     */
     private static Map<String, Object> deserializeCourseOffering(Object courseOffering) {
         String jsonString = JSON.serialize(courseOffering);
         return (Map<String, Object>) JSON.deserializeUntyped(jsonString);
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : extractPriceFromCourseOffering
+     * @description    : Helper method to extract the price from a course offering map.
+     * @param          courseOfferingMap - The course offering map.
+     * @return         : Decimal - Price of the course offering.
+     * @throws         : AuraHandledException - If the price is missing from the course offering.
+     * *********************************************************
+     */
     private static Decimal extractPriceFromCourseOffering(Map<String, Object> courseOfferingMap) {
         if (courseOfferingMap.containsKey('price')) {
             return (Decimal) courseOfferingMap.get('price');
@@ -66,6 +92,14 @@ public with sharing class CourseOfferingController {
         throw new AuraHandledException('Course offering price is missing');
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : createPendingOrderForCurrentUser
+     * @description    : Helper method to create a pending order for the current user.
+     * @return         : List<Order__c> - List containing the newly created pending order.
+     * @throws         : AuraHandledException - If an error occurs while creating the order.
+     * *********************************************************
+     */
     private static List<Order__c> createPendingOrderForCurrentUser() {
         Id currentUserId = UserInfo.getUserId();
         Id contact = fetchUserContact(currentUserId);
@@ -82,6 +116,14 @@ public with sharing class CourseOfferingController {
         return newOrder;
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : fetchUserContact
+     * @description    : Helper method to fetch the contact ID of a user.
+     * @param          userId - The user ID to fetch the contact for.
+     * @return         : Id - Contact ID of the user.
+     * *********************************************************
+     */
     private static Id fetchUserContact(Id userId) {
         return [
             SELECT ContactId 
@@ -91,6 +133,16 @@ public with sharing class CourseOfferingController {
         ].ContactId;
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : createOrderLineItem
+     * @description    : Helper method to create an order line item.
+     * @param          courseOfferingMap - The course offering map.
+     * @param          orderId - The ID of the order to add the line item to.
+     * @param          price - The price of the course offering.
+     * @return         : Order_Line_Item__c - The created order line item.
+     * *********************************************************
+     */
     private static Order_Line_Item__c createOrderLineItem(Map<String, Object> courseOfferingMap, Id orderId, Decimal price) {
         return new Order_Line_Item__c(
             Course_Offering__c = (Id) courseOfferingMap.get('id'),
@@ -99,6 +151,14 @@ public with sharing class CourseOfferingController {
         );
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : insertOrderLineItem
+     * @description    : Helper method to insert an order line item into the database.
+     * @param          orderLineItem - The order line item to insert.
+     * @throws         : AuraHandledException - If an error occurs while inserting the order line item.
+     * *********************************************************
+     */
     private static void insertOrderLineItem(Order_Line_Item__c orderLineItem) {
         Database.SaveResult result = Database.insert(orderLineItem, false);
         if (!result.isSuccess()) {
@@ -120,6 +180,14 @@ public with sharing class CourseOfferingController {
         return fetchOrderLineItems(orderId);
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : fetchOrderLineItems
+     * @description    : Helper method to fetch order line items for a specific order.
+     * @param          orderId - The ID of the order to fetch line items for.
+     * @return         : List<Order_Line_Item__c> - List of order line items for the given order.
+     * *********************************************************
+     */
     private static List<Order_Line_Item__c> fetchOrderLineItems(String orderId) {
         return [
             SELECT Id, Course_Offering__c, Course_Offering__r.Name, Course_Offering__r.StartDate, 
@@ -143,6 +211,14 @@ public with sharing class CourseOfferingController {
         deleteCourseOrderLineItem(courseLineItemId);
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : deleteCourseOrderLineItem
+     * @description    : Helper method to delete an order line item.
+     * @param          courseLineItemId - The ID of the course line item to delete.
+     * @throws         : AuraHandledException - If an error occurs while deleting the order line item.
+     * *********************************************************
+     */
     private static void deleteCourseOrderLineItem(Id courseLineItemId) {
         try {
             if (courseLineItemId != null) {
@@ -170,6 +246,14 @@ public with sharing class CourseOfferingController {
         return fetchCourseOfferings(courseIds);
     }
 
+    /**
+     * *********************************************************
+     * @Method Name    : fetchCourseOfferings
+     * @description    : Helper method to fetch CourseOfferings based on provided IDs.
+     * @param          courseIds - List of IDs of CourseOfferings to fetch.
+     * @return         : List<CourseOffering> - List of fetched CourseOfferings.
+     * *********************************************************
+     */
     private static List<CourseOffering> fetchCourseOfferings(List<Id> courseIds) {
         return [
             SELECT Id, Name, StartDate, Price__c, LearningCourse.Name
@@ -195,6 +279,16 @@ public with sharing class CourseOfferingController {
             throw new AuraHandledException('Error loading course: ' + e.getMessage());
         }
     }
+
+    /**
+     * *********************************************************
+     * @Method Name    : fetchCourseDetails
+     * @description    : Helper method to fetch details of a specific CourseOffering by ID.
+     * @param          recordId - ID of the CourseOffering to fetch details for.
+     * @return         : CourseOffering - Details of the CourseOffering.
+     * @throws         : AuraHandledException - If no course offering is found for the given ID.
+     * *********************************************************
+     */
     private static CourseOffering fetchCourseDetails(Id recordId) {
         CourseOffering courseOffering = [
             SELECT Id, Name, StartDate, Price__c, LearningCourse.Name

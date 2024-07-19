@@ -69,9 +69,6 @@ export default class CourseCart extends NavigationMixin(LightningElement) {
                 return course;
             });
 
-
-            
-
             this.showPriceMismatchModal = mismatches;
         } catch (error) {
             console.error('Error validating and adjusting prices:', error);
