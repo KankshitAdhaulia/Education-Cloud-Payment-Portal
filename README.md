@@ -1,5 +1,3 @@
-Here's the updated README file for the project:
-
 # Project Name: Education Cloud Payment Portal
 
 ## Description
@@ -62,11 +60,11 @@ This package aims to provide a comprehensive solution for managing course offeri
 
 3. **Assign the Education Cloud Site Admin Permission Set to an Admin User.**
 
-4. **Go to Digital Experiences -> All Sites -> Click on Builder for the site 'Education Payment Portal'. Update the Navigation Bar to include Learning Courses and publish the site.**
+4. **Go to Digital Experiences -> All Sites -> Click on Builder for the site 'Education Payment Portal'. Update the Navigation Bar to include Learning Courses object and publish the site.**
 
 5. **Go to the contact record you created and click on 'Login To Experience as User'.**
 
-6. **Navigate to Learning Courses.**
+6. **Navigate to Learning Courses in your Experience Site.**
 
 7. **Go to Related and select a Course Offering.**
 
@@ -79,7 +77,3 @@ This package aims to provide a comprehensive solution for managing course offeri
 
 11. **Verify Transaction records:**
     - Check the records created for objects Course Order and Course Order Line Item. Also, verify that related Course Offering Participant records are created.
-
-## Author
-- **Author:** Kankshit Adhaulia
-- **Email:** ad.kankshit@concret.io
