@@ -60,7 +60,7 @@ This package aims to provide a comprehensive solution for managing Course offeri
 
 3. **Assign the Education Cloud Site Admin Permission Set to an Admin User.**
 
-4. **Go to Digital Experiences -> All Sites -> Click on Builder for the site 'Education Payment Portal'. Update the Navigation Bar to include Learning Courses object and publish the site.**
+4. **Go to Digital Experiences -> All Sites -> Click on Builder for the site 'Education Payment Portal' and publish the site.**
 
 5. **Go to the contact record you created and click on 'Login To Experience as User'.**
 
