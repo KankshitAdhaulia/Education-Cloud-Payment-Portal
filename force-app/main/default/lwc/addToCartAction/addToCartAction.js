@@ -37,22 +37,37 @@ export default class AddToCartAction extends LightningElement {
 
     async addCourseToOrder(courseOfferingList) {
         try {
-            await addCoursesToOrders({ courseOfferingList });
+            const result = await addCoursesToOrders({ courseOfferingList }); 
             this.dispatchEvent(new CloseActionScreenEvent());
-
             const closeEvent = new CustomEvent('closeauracomponent');
             this.dispatchEvent(closeEvent);
-
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Success',
-                    message: 'Course added to cart',
-                    variant: 'success',
-                })
-            );
-
+            if (result.startsWith('Warning:')) {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Warning',
+                        message: result.split(': ')[1],
+                        variant: 'Warning',
+                    })
+                );
+            } else if (result.startsWith('Info:')) {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Info',
+                        message: result.split(': ')[1],
+                        variant: 'Info',
+                    })
+                );
+            }
+             else {        
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: result.split(': ')[1],
+                        variant: 'success',
+                    })
+                );
+            }
         } catch (error) {
-            console.error('Error adding to order:', JSON.stringify(error));
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error adding to order',
