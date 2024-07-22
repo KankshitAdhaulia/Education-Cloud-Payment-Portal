@@ -45,22 +45,50 @@ public with sharing class CourseOfferingController {
      * *********************************************************
      */
     @AuraEnabled
-    public static void addCoursesToOrders(List<Object> courseOfferingList) {
+    public static String addCoursesToOrders(List<Object> courseOfferingList) {
+        
         try {
             Map<String, Object> courseOfferingMap = deserializeCourseOffering(courseOfferingList[0]);
             Decimal price = extractPriceFromCourseOffering(courseOfferingMap);
+            if (price == null) {
+                return 'Warning: Course offering price is missing';
+            }
 
             List<Order__c> pendingOrders = getPendingOrders();
             if (pendingOrders.isEmpty()) {
                 pendingOrders = createPendingOrderForCurrentUser();
             }
+            
+            if (isCourseOfferingInCart(courseOfferingMap, pendingOrders[0].Id)) {
+                return 'Info: Course Offering already added to cart';
+            }
 
             Order_Line_Item__c orderLineItem = createOrderLineItem(courseOfferingMap, pendingOrders[0].Id, price);
             insertOrderLineItem(orderLineItem);
 
+            return 'Success: Course added to cart';
+
         } catch (Exception e) {
             throw new AuraHandledException('Error adding course offerings to order: ' + e.getMessage() + e.getCause()+ e.getLineNumber() + e.getTypeName());
         }
+    }
+
+    /**
+     * *********************************************************
+     * @Method Name    : isCourseOfferingInCart
+     * @description    : Checks if a given course offering is already present in the cart for a specific order.
+     * @param courseOfferingMap : Map<String, Object> - Map containing course offering details.
+     * @param orderId           : Id - The Id of the order to check against.
+     * @return          : Boolean - True if the course offering is already in the cart, otherwise false.
+     * *********************************************************
+     */
+    private static Boolean isCourseOfferingInCart(Map<String, Object> courseOfferingMap, Id orderId) {
+        Id courseId = (Id) courseOfferingMap.get('id');
+        List<Order_Line_Item__c> existingItems = [
+            SELECT Id FROM Order_Line_Item__c
+            WHERE Order__c = :orderId AND Course_Offering__c = :courseId
+        ];
+        return !existingItems.isEmpty();
     }
 
     /**
