@@ -1,7 +1,7 @@
 # Project Name: Education Cloud Payment Portal
 
 ## Description
-This package aims to provide a comprehensive solution for managing course offerings and payments on Salesforce Education Cloud Experience sites. The integration with Stripe ensures secure payment processing, while the custom objects facilitate efficient order and transaction management.
+This package aims to provide a comprehensive solution for managing Course offerings and payments on Salesforce Education Cloud Experience sites. The integration with Stripe ensures secure payment processing, while the custom objects facilitate efficient order and transaction management.
 
 ## Deployment
 
