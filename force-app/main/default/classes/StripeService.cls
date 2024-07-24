@@ -11,23 +11,22 @@
  */
 public with sharing class StripeService {
 
-    //Stripe Payment Configuration
-    private static final Stripe_Configurations__mdt stripeDetails = Stripe_Configurations__mdt.getInstance('Stripe_Payment_Details');
+    // Stripe Payment Configuration
+    private static final Stripe_Configurations__mdt STRIPE_DETAILS = Stripe_Configurations__mdt.getInstance('Stripe_Payment_Details');
 
     // API Endpoints
-    private static final String CHECKOUT_ENDPOINT = stripeDetails.Checkout_Endpoint__c;
+    private static final String CHECKOUT_ENDPOINT = STRIPE_DETAILS.Checkout_Endpoint__c;
     
     // Content Types
-    private static final String CONTENT_TYPE = stripeDetails.Content_Type__c;
+    private static final String CONTENT_TYPE = STRIPE_DETAILS.Content_Type__c;
     
+    private static final String ORG_URL = URL.getOrgDomainURL().toExternalForm().replace('salesforce', 'site');
     
-    private static final String orgUrl = URL.getOrgDomainURL().toExternalForm().replace('salesforce', 'site');
-    
-    private static final String CANCEL_URL = orgUrl + stripeDetails.Cancel_URL__c;
-    private static final String SUCCESS_URL = orgUrl + stripeDetails.Succes_URL__c;
+    private static final String CANCEL_URL = ORG_URL + STRIPE_DETAILS.Cancel_URL__c;
+    private static final String SUCCESS_URL = ORG_URL + STRIPE_DETAILS.Succes_URL__c;
     
     // Currency
-    private static final String SINGAPORE_CURRENCY = stripeDetails.Singapore_Currency__c;
+    private static final String SINGAPORE_CURRENCY = STRIPE_DETAILS.Singapore_Currency__c;
     
     // Quantities
     private static final Integer QUANTITY = 1;
@@ -68,10 +67,10 @@ public with sharing class StripeService {
      * @Method Name    : createCheckoutSession
      * @description    : This method creates a Stripe Checkout session by sending an HTTP
      *                   POST request to the Stripe API with the required parameters.
-     * @param          : courseOrderLines - JSON string containing order lines
-     * @param          : userId - The ID of the user creating the session
-     * @return         : String - The URL of the created Stripe Checkout session.
-     * @throws         : AuraHandledException - If the session creation fails or an error occurs.
+     * @param courseOrderLines JSON string containing order lines
+     * @param userId The ID of the user creating the session
+     * @return String - The URL of the created Stripe Checkout session.
+     * @throws AuraHandledException If the session creation fails or an error occurs.
      * *********************************************************
      */
     public static String createCheckoutSession(String courseOrderLines, String userId) {
@@ -91,7 +90,7 @@ public with sharing class StripeService {
      * @description    : This method creates Course Offering Participant records based on 
      *                   the provided payment intent. It queries order line items related 
      *                   to the payment intent and creates corresponding participant records.
-     * @param          : paymentIntent - The payment intent ID associated with the order.
+     * @param paymentIntent The payment intent ID associated with the order.
      * *********************************************************
      */
     public static void createCourseOfferingParticipant(String paymentIntent) {
@@ -110,9 +109,9 @@ public with sharing class StripeService {
      * @Method Name    : getSessionDetails
      * @description    : This method retrieves the details of a Stripe Checkout session
      *                   and associated customer information.
-     * @param          : sessionId - The ID of the checkout session.
-     * @return         : Map<String, Object> - The session details including customer information.
-     * @throws         : AuraHandledException - If the session retrieval fails or an error occurs.
+     * @param sessionId The ID of the checkout session.
+     * @return Map<String, Object> - The session details including customer information.
+     * @throws AuraHandledException If the session retrieval fails or an error occurs.
      * *********************************************************
      */
     public static Map<String, Object> getSessionDetails(String sessionId) {
@@ -129,9 +128,9 @@ public with sharing class StripeService {
      * @Method Name    : fetchInvoiceURL
      * @description    : This method fetches the invoice URL from the Invoice__c object
      *                   based on the payment intent.
-     * @param          : paymentIntent - The payment intent ID.
-     * @return         : String - The hosted invoice URL.
-     * @throws         : AuraHandledException - If the query fails or an error occurs.
+     * @param paymentIntent The payment intent ID.
+     * @return String - The hosted invoice URL.
+     * @throws AuraHandledException If the query fails or an error occurs.
      * *********************************************************
      */
     public static String fetchInvoiceURL(String paymentIntent) {
@@ -147,9 +146,9 @@ public with sharing class StripeService {
      * @Method Name    : handleCreateCheckoutSessionResponse
      * @description    : This helper method handles the response from the Stripe API
      *                   when creating a checkout session.
-     * @param          : res - The HttpResponse from the Stripe API.
-     * @return         : String - The URL of the created Stripe Checkout session.
-     * @throws         : AuraHandledException - If the session creation fails.
+     * @param res The HttpResponse from the Stripe API.
+     * @return String - The URL of the created Stripe Checkout session.
+     * @throws AuraHandledException If the session creation fails.
      * *********************************************************
      */
     private static String handleCreateCheckoutSessionResponse(HttpResponse res) {
@@ -166,9 +165,9 @@ public with sharing class StripeService {
      * @Method Name    : buildRequestBody
      * @description    : This helper method constructs the URL-encoded request body
      *                   for the Stripe Checkout session creation request.
-     * @param          : courseOrderLines - JSON string containing order lines.
-     * @param          : contactId - The ID of the contact associated with the user.
-     * @return         : String - The URL-encoded request body.
+     * @param courseOrderLines JSON string containing order lines.
+     * @param contactId The ID of the contact associated with the user.
+     * @return String - The URL-encoded request body.
      * *********************************************************
      */
     private static String buildRequestBody(String courseOrderLines, String contactId) {
@@ -185,7 +184,7 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : initializeParams
      * @description    : This helper method initializes the parameters for the request body.
-     * @return         : Map<String, String> - The initialized parameters.
+     * @return Map<String, String> - The initialized parameters.
      * *********************************************************
      */
     private static Map<String, String> initializeParams() {
@@ -202,8 +201,8 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : addLineItemsToParams
      * @description    : This helper method adds line items to the request parameters.
-     * @param          : parsedJson - List of course order lines.
-     * @param          : params - The request parameters map.
+     * @param parsedJson List of course order lines.
+     * @param params The request parameters map.
      * *********************************************************
      */
     private static void addLineItemsToParams(List<Object> parsedJson, Map<String, String> params) {
@@ -224,7 +223,7 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : addPaymentMethodsToParams
      * @description    : This helper method adds payment methods to the request parameters.
-     * @param          : params - The request parameters map.
+     * @param params The request parameters map.
      * *********************************************************
      */
     private static void addPaymentMethodsToParams(Map<String, String> params) {
@@ -239,8 +238,8 @@ public with sharing class StripeService {
      * @Method Name    : buildCourseOfferingParticipantList
      * @description    : This helper method builds the list of Course Offering Participant
      *                   records based on the provided payment intent.
-     * @param          : paymentIntent - The payment intent ID associated with the order.
-     * @return         : List<CourseOfferingParticipant> - The list of Course Offering Participant records.
+     * @param paymentIntent The payment intent ID associated with the order.
+     * @return List<CourseOfferingParticipant> - The list of Course Offering Participant records.
      * *********************************************************
      */
     private static List<CourseOfferingParticipant> buildCourseOfferingParticipantList(String paymentIntent) {
@@ -266,9 +265,9 @@ public with sharing class StripeService {
      * @Method Name    : handleGetSessionDetailsResponse
      * @description    : This helper method handles the response from the Stripe API
      *                   when retrieving session details.
-     * @param          : res - The HttpResponse from the Stripe API.
-     * @return         : Map<String, Object> - The session details including customer information.
-     * @throws         : AuraHandledException - If the session retrieval fails.
+     * @param res The HttpResponse from the Stripe API.
+     * @return Map<String, Object> - The session details including customer information.
+     * @throws AuraHandledException If the session retrieval fails.
      * *********************************************************
      */
     private static Map<String, Object> handleGetSessionDetailsResponse(HttpResponse res) {
@@ -289,19 +288,17 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : updateCourseOrder
      * @description    : This method updates the course order with the session data.
-     * @param          : sessionData - The session data map.
-     * @throws         : AuraHandledException - If the order update fails or an error occurs.
+     * @param sessionData The session data map.
+     * @throws AuraHandledException If the order update fails or an error occurs.
      * *********************************************************
      */
     private static void updateCourseOrder(Map<String, Object> sessionData) {
         Map<String, Object> invoiceDetails = (Map<String, Object>) sessionData.get('invoice');
         String userId = (String) sessionData.get('client_reference_id');
         String contactId = getUserContactId(userId);
-
         if (contactId == null) {
             throw new AuraHandledException(NO_CONTACT_FOUND);
         }
-
         try {
             Order__c matchingOrder = findMatchingOrder(contactId);
             updateMatchingOrder(matchingOrder, sessionData, invoiceDetails);
@@ -314,13 +311,13 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : findMatchingOrder
      * @description    : This helper method finds the matching order for a given contact ID.
-     * @param          : contactId - The contact ID.
-     * @return         : Order__c - The matching order.
-     * @throws         : AuraHandledException - If no matching order is found.
+     * @param contactId The contact ID.
+     * @return Order__c - The matching order.
+     * @throws AuraHandledException If no matching order is found.
      * *********************************************************
      */
     private static Order__c findMatchingOrder(String contactId) {
-        List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c = :contactId AND Status__c = :ORDER_STATUS_PENDING LIMIT 1];
+        List<Order__c> orders = [SELECT Id FROM Order__c WHERE Contact__c = :contactId AND Status__c = :ORDER_STATUS_PENDING WITH USER_MODE LIMIT 1];
         if (orders.isEmpty()) {
             throw new AuraHandledException(ERROR_NO_MATCHING_ORDER);
         }
@@ -331,10 +328,10 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : updateMatchingOrder
      * @description    : This helper method updates the matching order with the session data.
-     * @param          : matchingOrder - The matching order.
-     * @param          : sessionData - The session data map.
-     * @param          : invoiceDetails - The invoice details map.
-     * @throws         : AuraHandledException - If the order update fails.
+     * @param matchingOrder The matching order.
+     * @param sessionData The session data map.
+     * @param invoiceDetails The invoice details map.
+     * @throws AuraHandledException If the order update fails.
      * *********************************************************
      */
     private static void updateMatchingOrder(Order__c matchingOrder, Map<String, Object> sessionData, Map<String, Object> invoiceDetails) {
@@ -355,8 +352,8 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : getUserContactId
      * @description    : This method retrieves the Contact Id associated with a given User Id.
-     * @param userId   : String - The Id of the User whose Contact Id is to be retrieved.
-     * @return         : String - The Contact Id associated with the given User Id, or null if no contact is found.
+     * @param userId The Id of the User whose Contact Id is to be retrieved.
+     * @return String - The Contact Id associated with the given User Id, or null if no contact is found.
      * *********************************************************
      */
     private static String getUserContactId(String userId) {
@@ -375,12 +372,12 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : sendHttpRequest
      * @description    : This helper method sends an HTTP request and returns the response.
-     * @param          : endpoint - The endpoint URL for the request.
-     * @param          : method - The HTTP method.
-     * @param          : body - The request body.
-     * @param          : setContentType - Boolean indicating whether to set the Content-Type header.
-     * @return         : HttpResponse - The HTTP response.
-     * @throws         : AuraHandledException - If the request fails or an error occurs.
+     * @param endpoint The endpoint URL for the request.
+     * @param method The HTTP method.
+     * @param body The request body.
+     * @param setContentType Boolean indicating whether to set the Content-Type header.
+     * @return HttpResponse - The HTTP response.
+     * @throws AuraHandledException If the request fails or an error occurs.
      * *********************************************************
      */
     private static HttpResponse sendHttpRequest(String endpoint, String method, String body, Boolean setContentType) {
@@ -401,8 +398,8 @@ public with sharing class StripeService {
      * *********************************************************
      * @Method Name    : convertMapToUrlEncodedString
      * @description    : This helper method converts a map to a URL-encoded query string.
-     * @param          : params - The map containing the parameters.
-     * @return         : String - The URL-encoded query string.
+     * @param params The map containing the parameters.
+     * @return String - The URL-encoded query string.
      * *********************************************************
      */
     private static String convertMapToUrlEncodedString(Map<String, String> params) {
@@ -412,4 +409,5 @@ public with sharing class StripeService {
         }
         return String.join(paramList, '&');
     }
+
 }
