@@ -61,7 +61,7 @@ This package aims to provide a comprehensive solution for managing Course offeri
     3. Click on **API keys**.
     4. Click on **Reveal Test Key** and copy it.
 
-2. **Create a Contact and a new associated Account record and enable Customer User:**
+2. **Create a Contact and a new associated Account record (Business Account) and enable Customer User:**
     - Provide Email, Username, profile as Customer Community Plus, and click Save.
     - Assign permission sets to the Experience User:
         - **Stripe Payment Access**
