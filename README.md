@@ -9,7 +9,16 @@ This package aims to provide a comprehensive solution for managing Course offeri
 1. **Create a new Education Cloud trial org:**
    - [Education Cloud Free Trial](https://developer.salesforce.com/free-trials/comparison/education-cloud)
 
-2. **Enable required settings:**
+2. **Create a Stripe Account with Country as Singapore and Enable GrabPay and Link Wallets:**
+
+   Steps to enable Wallets:
+   1. Register for a [Stripe Account](https://dashboard.stripe.com/login).
+   2. Click on the settings icon.
+   3. Under Product Settings, click on 'Payments'.
+   4. Click on Payment Methods.
+   5. Activate GrabPay and Link.
+
+3. **Enable required settings:**
     - Go to **Digital Experience** -> **Settings**.
     - Enable **ExperienceBundle Metadata API in Digital Experiences**.
     - Allow using standard external profiles for self-registration user creation and check-in.
