@@ -51,7 +51,7 @@ public with sharing class CourseOfferingController {
             Map<String, Object> courseOfferingMap = deserializeCourseOffering(courseOfferingList[0]);
             Decimal price = extractPriceFromCourseOffering(courseOfferingMap);
             if (price == null) {
-                return 'Warning: Course offering price is missing';
+                return 'Warning: Course Offering price is missing';
             }
 
             List<Order__c> pendingOrders = getPendingOrders();
@@ -117,7 +117,7 @@ public with sharing class CourseOfferingController {
         if (courseOfferingMap.containsKey('price')) {
             return (Decimal) courseOfferingMap.get('price');
         }
-        throw new AuraHandledException('Course offering price is missing');
+        return null;
     }
 
     /**
